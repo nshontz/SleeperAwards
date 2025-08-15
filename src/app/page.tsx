@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { SleeperAPI } from '@/lib/sleeper-api';
-import { AwardsCalculator } from '@/lib/awards-calculator';
-import { AwardCard } from '@/components/AwardCard';
-import { AwardModal } from '@/components/AwardModal';
-import { Award } from '@/types/sleeper';
+import React, {useEffect, useState} from 'react';
+import {SleeperAPI} from '@/lib/sleeper-api';
+import {AwardsCalculator} from '@/lib/awards-calculator';
+import {AwardCard} from '@/components/AwardCard';
+import {AwardModal} from '@/components/AwardModal';
+import {Award} from '@/types/sleeper';
 
-const LEAGUE_ID = process.env.NEXT_PUBLIC_LEAGUE_ID;
+const LEAGUE_ID: string = process.env.NEXT_PUBLIC_LEAGUE_ID || '';
 const CACHE_DURATION = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
 const CACHE_KEY = 'sleeper_awards_cache';
 
@@ -19,19 +19,23 @@ export default function Home() {
   const [leagueName, setLeagueName] = useState('Bine to Shrine Fantasy League');
 
   useEffect(() => {
+    if (LEAGUE_ID === '') {
+      throw new Error('NEXT_PUBLIC_LEAGUE_ID environment variable is required');
+    }
+
     loadAwards();
   }, []);
 
   const loadAwards = async () => {
     try {
       setLoading(true);
-      
+
       // Check cache first
       const cached = localStorage.getItem(CACHE_KEY);
       if (cached) {
-        const { data, timestamp } = JSON.parse(cached);
+        const {data, timestamp} = JSON.parse(cached);
         const now = Date.now();
-        
+
         if (now - timestamp < CACHE_DURATION) {
           setAwards(data.awards);
           setLeagueName(data.leagueName);
@@ -39,27 +43,22 @@ export default function Home() {
           return;
         }
       }
-
-      if (!LEAGUE_ID) {
-        throw new Error('NEXT_PUBLIC_LEAGUE_ID environment variable is required');
-      }
-      
       const api = new SleeperAPI(LEAGUE_ID);
-      
+
       const [league, rosters, users, allMatchups] = await Promise.all([
         api.getLeague(),
         api.getRosters(),
         api.getUsers(),
         api.getAllMatchups()
       ]);
-      
+
       setLeagueName(league.name);
-      
+
       const calculator = new AwardsCalculator(rosters, users, allMatchups);
       const calculatedAwards = calculator.calculateAllAwards();
-      
+
       setAwards(calculatedAwards);
-      
+
       // Cache the data
       const cacheData = {
         data: {
@@ -69,7 +68,7 @@ export default function Home() {
         timestamp: Date.now()
       };
       localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
-      
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load awards');
     } finally {
@@ -93,7 +92,7 @@ export default function Home() {
       <div className="min-h-screen bg-gradient-to-br from-hop-green to-green-800 flex items-center justify-center">
         <div className="bg-white rounded-lg p-8 max-w-md text-center">
           <p className="text-red-600 mb-4">Error: {error}</p>
-          <button 
+          <button
             onClick={loadAwards}
             className="bg-hop-green text-white px-4 py-2 rounded-md hover:bg-hop-green/90"
           >
@@ -125,7 +124,7 @@ export default function Home() {
 
       {/* Awards Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-3" style={{ gap: '30px' }}>
+        <div className="grid grid-cols-3" style={{gap: '30px'}}>
           {awards.map((award) => (
             <AwardCard
               key={award.id}
