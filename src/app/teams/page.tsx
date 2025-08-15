@@ -192,17 +192,19 @@ export default function TeamsPage() {
                             <span className="bg-hop-gold text-hop-brown font-bold rounded-full w-6 h-6 flex items-center justify-center text-xs">
                               {team.rank}
                             </span>
-                            <h4 className="font-semibold text-white text-sm">{team.teamName}</h4>
+                            <Link href={`/team/${team.roster_id}`} className="font-semibold text-white text-sm hover:text-hop-gold transition-colors">
+                              {team.teamName}
+                            </Link>
                           </div>
                           <div className="text-right">
                             <p className="text-hop-gold font-bold text-sm">{team.settings.wins}-{team.settings.losses}</p>
-                            <p className="text-white/80 text-xs">{team.totalPoints.toFixed(1)} pts</p>
+                            <p className="text-white/80 text-xs">{team.totalPoints?.toFixed(1)} pts</p>
                           </div>
                         </div>
                         
-                        <div className="grid grid-cols-2 gap-2 text-xs text-white/90 dark:text-gray-300">
+                        <div className="grid grid-cols-2 gap-2 text-xs text-white/90 dark:text-gray-300 mb-3">
                           <div>
-                            <p>Avg: {team.averagePoints.toFixed(1)}</p>
+                            <p>Avg: {team.averagePoints?.toFixed(1)}</p>
                             <p>Against: {team.pointsAgainst?.toFixed(1)}</p>
                           </div>
                           <div>
@@ -215,6 +217,15 @@ export default function TeamsPage() {
                               </div>
                             )}
                           </div>
+                        </div>
+                        
+                        <div className="text-center">
+                          <Link 
+                            href={`/team/${team.roster_id}`}
+                            className="inline-block bg-hop-gold text-hop-brown px-3 py-1 rounded text-xs font-semibold hover:bg-yellow-400 transition-colors"
+                          >
+                            View Team Details →
+                          </Link>
                         </div>
                       </div>
                     ))}
