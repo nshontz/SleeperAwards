@@ -5,10 +5,9 @@ import { Award } from '@/types/sleeper';
 
 interface AwardCardProps {
   award: Award;
-  onViewDetails: (award: Award) => void;
 }
 
-export const AwardCard: React.FC<AwardCardProps> = ({ award, onViewDetails }) => {
+export const AwardCard: React.FC<AwardCardProps> = ({ award }) => {
   return (
     <div className="award-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow border-hop-green">
       <div className="flex items-center justify-between mb-4">
@@ -35,16 +34,7 @@ export const AwardCard: React.FC<AwardCardProps> = ({ award, onViewDetails }) =>
           </div>
         </div>
       )}
-      
-      <button
-        onClick={() => {
-          console.log('Button clicked for award:', award.name);
-          onViewDetails(award);
-        }}
-        className="w-1/2 bg-hop-green dark:bg-hop-green text-white py-2 px-4 rounded-md hover:bg-hop-green/90 transition-colors"
-      >
-        View Full Leaderboard
-      </button>
+
     </div>
   );
 };
