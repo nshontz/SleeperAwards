@@ -64,8 +64,8 @@ export class AwardsCalculator {
         return {
           rank: 0,
           teamName: this.teamNames.get(roster.roster_id) || 'Unknown Team',
-          value: Number(value.toFixed(2)),
-          details: `${value.toFixed(2)} points against`
+          value: Number(value?.toFixed(2)),
+          details: `${value?.toFixed(2)} points against`
         };
       })
       .sort((a, b) => Number(a.value) - Number(b.value))
@@ -91,8 +91,8 @@ export class AwardsCalculator {
         return {
           rank: 0,
           teamName: this.teamNames.get(roster.roster_id) || 'Unknown Team',
-          value: Number(value.toFixed(2)),
-          details: `${value.toFixed(2)} points against`
+          value: Number(value?.toFixed(2)),
+          details: `${value?.toFixed(2)} points against`
         };
       })
       .sort((a, b) => Number(b.value) - Number(a.value))
@@ -114,7 +114,7 @@ export class AwardsCalculator {
       .map(roster => ({
         rank: 0,
         teamName: this.teamNames.get(roster.roster_id) || '',
-        value: Number((Math.random() * 100).toFixed(1)), // Placeholder - would calculate actual vs projected
+        value: Number((Math.random() * 100)?.toFixed(1)), // Placeholder - would calculate actual vs projected
         details: 'Projection accuracy score'
       }))
       .sort((a, b) => Number(b.value) - Number(a.value))
@@ -147,8 +147,8 @@ export class AwardsCalculator {
       .map(([rosterId, scores]) => ({
         rank: 0,
         teamName: this.teamNames.get(rosterId) || '',
-        value: Number(this.calculateStandardDeviation(scores).toFixed(2)),
-        details: `StdDev: ${this.calculateStandardDeviation(scores).toFixed(2)}`
+        value: Number(this.calculateStandardDeviation(scores)?.toFixed(2)),
+        details: `StdDev: ${this.calculateStandardDeviation(scores)?.toFixed(2)}`
       }))
       .sort((a, b) => Number(a.value) - Number(b.value))
       .map((team, index) => ({ ...team, rank: index + 1 }));
@@ -169,7 +169,7 @@ export class AwardsCalculator {
       .map(roster => ({
         rank: 0,
         teamName: this.teamNames.get(roster.roster_id) || '',
-        value: Number((Math.random() * 100).toFixed(1)),
+        value: Number((Math.random() * 100)?.toFixed(1)),
         details: 'Player variance score'
       }))
       .sort((a, b) => Number(b.value) - Number(a.value))
@@ -202,8 +202,8 @@ export class AwardsCalculator {
       .map(([rosterId, scores]) => ({
         rank: 0,
         teamName: this.teamNames.get(rosterId) || '',
-        value: Number(this.calculateStandardDeviation(scores).toFixed(2)),
-        details: `StdDev: ${this.calculateStandardDeviation(scores).toFixed(2)}`
+        value: Number(this.calculateStandardDeviation(scores)?.toFixed(2)),
+        details: `StdDev: ${this.calculateStandardDeviation(scores)?.toFixed(2)}`
       }))
       .sort((a, b) => Number(b.value) - Number(a.value))
       .map((team, index) => ({ ...team, rank: index + 1 }));
@@ -253,8 +253,8 @@ export class AwardsCalculator {
         return {
           rank: 0,
           teamName: this.teamNames.get(roster.roster_id) || 'Unknown Team',
-          value: Number(value.toFixed(2)),
-          details: maxWeek > 0 ? `${value.toFixed(2)} points in Week ${maxWeek}` : 'No data available'
+          value: Number(value?.toFixed(2)),
+          details: maxWeek > 0 ? `${value?.toFixed(2)} points in Week ${maxWeek}` : 'No data available'
         };
       })
       .sort((a, b) => Number(b.value) - Number(a.value))
@@ -276,7 +276,7 @@ export class AwardsCalculator {
       .map(roster => ({
         rank: 0,
         teamName: this.teamNames.get(roster.roster_id) || '',
-        value: Number((Math.random() * 50).toFixed(1)),
+        value: Number((Math.random() * 50)?.toFixed(1)),
         details: 'Points above projection'
       }))
       .sort((a, b) => Number(b.value) - Number(a.value))
@@ -356,8 +356,8 @@ export class AwardsCalculator {
         return {
           rank: 0,
           teamName: this.teamNames.get(roster.roster_id) || 'Unknown Team',
-          value: Number(value.toFixed(2)),
-          details: maxWeek > 0 ? `${value.toFixed(2)} point margin in Week ${maxWeek}` : 'No data available'
+          value: Number(value?.toFixed(2)),
+          details: maxWeek > 0 ? `${value?.toFixed(2)} point margin in Week ${maxWeek}` : 'No data available'
         };
       })
       .sort((a, b) => Number(b.value) - Number(a.value))
@@ -379,7 +379,7 @@ export class AwardsCalculator {
       .map(roster => ({
         rank: 0,
         teamName: this.teamNames.get(roster.roster_id) || '',
-        value: Number((Math.random() * 100).toFixed(1)),
+        value: Number((Math.random() * 100)?.toFixed(1)),
         details: 'Bench advantage points'
       }))
       .sort((a, b) => Number(b.value) - Number(a.value))
@@ -401,7 +401,7 @@ export class AwardsCalculator {
       .map(roster => ({
         rank: 0,
         teamName: this.teamNames.get(roster.roster_id) || '',
-        value: Number((Math.random() * 100).toFixed(1)),
+        value: Number((Math.random() * 100)?.toFixed(1)),
         details: 'Starter advantage points'
       }))
       .sort((a, b) => Number(b.value) - Number(a.value))
@@ -423,7 +423,7 @@ export class AwardsCalculator {
       .map(roster => ({
         rank: 0,
         teamName: this.teamNames.get(roster.roster_id) || '',
-        value: Number((Math.random() * 150).toFixed(1)),
+        value: Number((Math.random() * 150)?.toFixed(1)),
         details: 'Highest losing score'
       }))
       .sort((a, b) => Number(b.value) - Number(a.value))

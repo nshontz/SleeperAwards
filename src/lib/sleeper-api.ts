@@ -45,4 +45,16 @@ export class SleeperAPI {
     if (!response.ok) throw new Error('Failed to fetch NFL state');
     return response.json();
   }
+
+  async getAllPlayers() {
+    const response = await fetch(`${SLEEPER_BASE_URL}/players/nfl`);
+    if (!response.ok) throw new Error('Failed to fetch players');
+    return response.json();
+  }
+
+  async getTrendingPlayers(type: 'add' | 'drop' = 'add', hours: number = 24) {
+    const response = await fetch(`${SLEEPER_BASE_URL}/players/nfl/trending/${type}?lookback_hours=${hours}&limit=25`);
+    if (!response.ok) throw new Error('Failed to fetch trending players');
+    return response.json();
+  }
 }

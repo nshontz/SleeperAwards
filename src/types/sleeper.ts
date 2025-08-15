@@ -58,6 +58,27 @@ export interface SleeperLeague {
     players_points?: Record<string, number>;
   }
   
+  export interface SleeperPlayer {
+    player_id: string;
+    first_name: string;
+    last_name: string;
+    full_name: string;
+    position: string;
+    team: string;
+    status: string;
+    fantasy_positions: string[];
+    injury_status?: string;
+    years_exp?: number;
+    height?: string;
+    weight?: string;
+    age?: number;
+  }
+
+  export interface TrendingPlayer {
+    player_id: string;
+    count: number;
+  }
+
   export interface Award {
     id: string;
     name: string;
