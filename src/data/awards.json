@@ -1,0 +1,80 @@
+{
+  "fewestPointsAgainst": {
+    "id": "fewest-points-against",
+    "name": "The Cascade Shield",
+    "description": "Endured fewest points against",
+    "icon": "🛡️"
+  },
+  "mostPointsAgainst": {
+    "id": "most-points-against", 
+    "name": "The Bitter End Award",
+    "description": "Endured most points against",
+    "icon": "😤"
+  },
+  "mostPredictable": {
+    "id": "most-predictable",
+    "name": "The Noble Hop Award", 
+    "description": "Most predictable - closest to projections",
+    "icon": "🎯"
+  },
+  "mostConsistent": {
+    "id": "most-consistent",
+    "name": "The Pilsner Prize",
+    "description": "Most consistent - lowest standard deviation", 
+    "icon": "📊"
+  },
+  "boomOrBustPlayer": {
+    "id": "boom-or-bust-player",
+    "name": "The Citra Wildcard",
+    "description": "Most boom or bust player",
+    "icon": "🎲"
+  },
+  "boomOrBustTeam": {
+    "id": "boom-or-bust-team", 
+    "name": "The IPA Rollercoaster",
+    "description": "Boom or bust team - greatest standard deviation",
+    "icon": "🎢"
+  },
+  "bestSingleGame": {
+    "id": "best-single-game",
+    "name": "The Alpha Acid Champion",
+    "description": "Best single game score",
+    "icon": "🏆"
+  },
+  "bestGameAboveProjections": {
+    "id": "best-game-above-projections",
+    "name": "The Mosaic Masterpiece", 
+    "description": "Try Hard - Best game above projections",
+    "icon": "💪"
+  },
+  "biggestBlowout": {
+    "id": "biggest-blowout",
+    "name": "The Hop Bomb Award",
+    "description": "Biggest blowout victory",
+    "icon": "💥"
+  },
+  "benchOutscoredStarters": {
+    "id": "bench-outscored-starters",
+    "name": "The Dry Hop Disaster",
+    "description": "Bench scored more than starters", 
+    "icon": "🪑"
+  },
+  "startersOutplayedBench": {
+    "id": "starters-outplayed-bench",
+    "name": "The Perfect Brew",
+    "description": "Starters outplayed bench by widest margin",
+    "icon": "🍺"
+  },
+  "highestScoringLoss": {
+    "id": "highest-scoring-loss",
+    "name": "The Centennial Curse",
+    "description": "Lost while scoring the most points",
+    "icon": "😭"
+  },
+  "mostInjuries": {
+    "id": "most-injuries",
+    "name": "The Wilted Bine Award", 
+    "description": "Most injuries in a week",
+    "icon": "🏥"
+  }
+}
