@@ -132,7 +132,7 @@ export default function TeamPage({ params }: TeamPageProps) {
     // Get starters and bench players
     const starters = (roster.starters || [])
       .map(playerId => rosterPlayers.find(p => p.player_id === playerId))
-      .filter(Boolean);
+      .filter((player): player is SleeperPlayer => Boolean(player));
       
     const benchPlayers = rosterPlayers.filter(player => 
       !roster.starters?.includes(player.player_id)
