@@ -9,11 +9,7 @@ import { Award } from '@/types/sleeper';
 
 const LEAGUE_ID = process.env.NEXT_PUBLIC_LEAGUE_ID;
 const CACHE_DURATION = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
-const CACHE_KEY = 'binetime_awards_cache';
-
-if (!LEAGUE_ID) {
-  throw new Error('NEXT_PUBLIC_LEAGUE_ID environment variable is required');
-}
+const CACHE_KEY = 'sleeper_awards_cache';
 
 export default function Home() {
   const [awards, setAwards] = useState<Award[]>([]);
@@ -42,6 +38,10 @@ export default function Home() {
           setLoading(false);
           return;
         }
+      }
+
+      if (!LEAGUE_ID) {
+        throw new Error('NEXT_PUBLIC_LEAGUE_ID environment variable is required');
       }
       
       const api = new SleeperAPI(LEAGUE_ID);
