@@ -250,7 +250,7 @@ body {
 .theme-toggle {
   position: fixed;
   top: 1rem;
-  right: 1rem;
+  left: 1rem;
   z-index: 50;
   background: var(--accent-bg);
   backdrop-filter: blur(12px);
@@ -327,7 +327,7 @@ body {
 .hamburger-button {
   position: fixed;
   top: 1rem;
-  left: 1rem;
+  right: 1rem;
   z-index: 50;
   background: var(--accent-bg);
   backdrop-filter: blur(12px);
@@ -387,15 +387,15 @@ body {
 .hamburger-menu {
   position: fixed;
   top: 0;
-  left: 0;
+  right: 0;
   height: 100vh;
   width: 20rem;
   max-width: 80vw;
   background: var(--card-bg);
-  border-right: 1px solid var(--border-color);
+  border-left: 1px solid var(--border-color);
   box-shadow: var(--shadow-lg);
   z-index: 50;
-  transform: translateX(-100%);
+  transform: translateX(100%);
   transition: transform 0.3s ease-out;
   display: flex;
   flex-direction: column;
@@ -449,20 +449,25 @@ body {
   color: var(--primary-text);
   text-decoration: none;
   transition: all 0.2s ease;
-  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
   position: relative;
+}
+
+/* Dark theme link color override */
+.dark .hamburger-menu-item {
+  color: #d1d5db; /* light grey */
 }
 
 .hamburger-menu-item:hover {
   background: var(--accent-bg);
   color: var(--accent-text);
-  border-left-color: var(--accent-text);
+  border-right-color: var(--accent-text);
 }
 
 .hamburger-menu-item-active {
   background: var(--accent-bg);
   color: var(--accent-text);
-  border-left-color: var(--hop-gold);
+  border-right-color: var(--hop-gold);
 }
 
 .hamburger-menu-icon {
@@ -499,7 +504,23 @@ body {
   
   .theme-toggle {
     top: 1rem;
+    left: 1rem;
+  }
+
+  .hamburger-button {
+    top: 1rem;
     right: 1rem;
+  }
+
+  /* Add top padding to page content on mobile to account for fixed hamburger button */
+  .page-container {
+    padding-top: 5rem;
+  }
+
+  /* Reduce padding for headers on mobile */
+  .page-header {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
   }
 }
 
