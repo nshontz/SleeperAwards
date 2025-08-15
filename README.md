@@ -2,6 +2,8 @@
 
 A Next.js application that tracks and displays hop-themed fantasy football awards for the Yakima Chief Hops fantasy league using the Sleeper API.
 
+** This project is an experiment to create an app exclusively via AI. **
+
 ## Features
 
 - 🏆 **13 Hop-Themed Awards** - From "The Cascade Shield" to "The Hop Bomb Award"

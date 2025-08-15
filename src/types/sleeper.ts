@@ -6,6 +6,17 @@ export interface SleeperLeague {
     season: string;
     scoring_settings: Record<string, number>;
     roster_positions: string[];
+    settings?: {
+      divisions?: number;
+      playoff_teams?: number;
+      playoff_type?: number;
+    };
+    metadata?: {
+      division_1?: string;
+      division_2?: string;
+      division_3?: string;
+      division_4?: string;
+    };
   }
   
   export interface SleeperRoster {
@@ -21,6 +32,10 @@ export interface SleeperLeague {
       fpts_against: number;
       fpts_decimal: number;
       fpts_against_decimal: number;
+      division?: number;
+    };
+    metadata?: {
+      division?: string;
     };
   }
   
