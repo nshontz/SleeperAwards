@@ -3,14 +3,5 @@
     "deploymentEnabled": {
       "main": true
     }
-  },
-  "env": {
-    "DATABASE_URL": "@database-url",
-    "KINDE_CLIENT_ID": "@kinde-client-id", 
-    "KINDE_CLIENT_SECRET": "@kinde-client-secret",
-    "KINDE_ISSUER_URL": "@kinde-issuer-url",
-    "KINDE_SITE_URL": "@kinde-site-url",
-    "KINDE_POST_LOGOUT_REDIRECT_URL": "@kinde-post-logout-redirect-url",
-    "KINDE_POST_LOGIN_REDIRECT_URL": "@kinde-post-login-redirect-url"
   }
 }

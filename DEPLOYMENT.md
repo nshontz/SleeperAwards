@@ -15,20 +15,22 @@ This application is fully configured and ready to deploy to Vercel with the foll
 ## 🚀 Vercel Deployment Steps
 
 ### 1. Environment Variables
-Set these in Vercel dashboard:
+Add these directly in Vercel Project Settings → Environment Variables:
 
-```bash
-# Database
-DATABASE_URL=your_postgres_connection_string
+| Variable Name | Value | Environment |
+|---------------|-------|-------------|
+| `DATABASE_URL` | `your_postgres_connection_string` | Production, Preview, Development |
+| `KINDE_CLIENT_ID` | `your_kinde_client_id` | Production, Preview, Development |
+| `KINDE_CLIENT_SECRET` | `your_kinde_client_secret` | Production, Preview, Development |
+| `KINDE_ISSUER_URL` | `https://your-subdomain.kinde.com` | Production, Preview, Development |
+| `KINDE_SITE_URL` | `https://your-vercel-app.vercel.app` | Production, Preview, Development |
+| `KINDE_POST_LOGOUT_REDIRECT_URL` | `https://your-vercel-app.vercel.app` | Production, Preview, Development |
+| `KINDE_POST_LOGIN_REDIRECT_URL` | `https://your-vercel-app.vercel.app/teams` | Production, Preview, Development |
 
-# Kinde Authentication  
-KINDE_CLIENT_ID=your_kinde_client_id
-KINDE_CLIENT_SECRET=your_kinde_client_secret
-KINDE_ISSUER_URL=https://your-subdomain.kinde.com
-KINDE_SITE_URL=https://your-vercel-app.vercel.app
-KINDE_POST_LOGOUT_REDIRECT_URL=https://your-vercel-app.vercel.app
-KINDE_POST_LOGIN_REDIRECT_URL=https://your-vercel-app.vercel.app/teams
-```
+**Important**: 
+- Don't use the `@secret-name` syntax - add environment variables directly
+- Set each variable for Production, Preview, and Development environments
+- Use your actual Vercel app URL (e.g., `https://bine-time.vercel.app`)
 
 ### 2. Database Setup
 ```bash
