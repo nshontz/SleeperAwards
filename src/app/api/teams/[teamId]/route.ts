@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAuthenticatedUser, ensureUserExists, getUserTeam } from '../../../../lib/kinde-auth';
+import { getAuthenticatedUser, ensureUserExists, getUserTeam } from '@/lib/kinde-auth';
 
 interface RouteContext {
   params: Promise<{ teamId: string }>;
