@@ -5,6 +5,7 @@ The app now includes a comprehensive CSS-based theme system with custom properti
 
 ## CSS Custom Properties Available
 
+
 ### Color Variables
 ```css
 /* Brand Colors */
