@@ -8,7 +8,7 @@ export async function GET() {
     const defaultUser = await prisma.user.findFirst({
       where: { isDefault: true },
       include: {
-        leagues: {
+        teams: {
           include: {
             league: true,
           },

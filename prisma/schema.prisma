@@ -18,36 +18,40 @@ model User {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String?
+  password  String?  // For authentication
   isDefault Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  // Many-to-many relationship with League
-  leagues   UserLeague[]
+  // User owns teams
+  teams     Team[]
+}
+
+model Team {
+  id              String   @id @default(cuid())
+  name            String
+  sleeperRosterId String?  @unique // Link to Sleeper roster
+  ownerId         String   // User who owns this team
+  leagueId        String   // League this team belongs to
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relationships
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  league  League @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  
+  @@unique([ownerId, leagueId]) // User can only have one team per league
 }
 
 model League {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  sleeperLeagueId String @unique
-  isDefault   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(cuid())
+  name            String
+  description     String?
+  sleeperLeagueId String   @unique
+  isDefault       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
   
-  // Many-to-many relationship with User
-  users       UserLeague[]
-}
-
-model UserLeague {
-  id       String @id @default(cuid())
-  userId   String
-  leagueId String
-  role     String @default("member") // member, admin, owner
-  joinedAt DateTime @default(now())
-  
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  league League @relation(fields: [leagueId], references: [id], onDelete: Cascade)
-  
-  @@unique([userId, leagueId])
+  // League contains teams
+  teams           Team[]
 }

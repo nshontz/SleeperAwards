@@ -3,47 +3,60 @@ import { PrismaClient } from '../src/generated/prisma';
 const prisma = new PrismaClient();
 
 async function main() {
-  // Create default user
-  const defaultUser = await prisma.user.upsert({
-    where: { email: 'default@example.com' },
-    update: {},
-    create: {
-      email: 'default@example.com',
-      name: 'Default User',
-      isDefault: true,
-    },
-  });
-
-  // Create default league with the LEAGUE_ID from .env.local
+  // Create default league
   const defaultLeague = await prisma.league.upsert({
     where: { sleeperLeagueId: '1262129908398694400' },
     update: {},
     create: {
-      name: 'Default League',
+      name: 'Bine to Shrine Fantasy League',
       description: 'Default Sleeper league',
       sleeperLeagueId: '1262129908398694400',
       isDefault: true,
     },
   });
 
-  // Associate default user with default league
-  await prisma.userLeague.upsert({
-    where: { 
-      userId_leagueId: {
-        userId: defaultUser.id,
+  // Create sample users with teams
+  const users = [
+    { email: 'user1@example.com', name: 'Team Owner 1', teamName: 'Team Alpha', sleeperRosterId: '1' },
+    { email: 'user2@example.com', name: 'Team Owner 2', teamName: 'Team Beta', sleeperRosterId: '2' },
+    { email: 'user3@example.com', name: 'Team Owner 3', teamName: 'Team Gamma', sleeperRosterId: '3' },
+    { email: 'admin@example.com', name: 'League Admin', teamName: 'Admin Team', sleeperRosterId: '4', isDefault: true },
+  ];
+
+  for (const userData of users) {
+    // Create user
+    const user = await prisma.user.upsert({
+      where: { email: userData.email },
+      update: {},
+      create: {
+        email: userData.email,
+        name: userData.name,
+        password: 'password123', // In production, this should be hashed
+        isDefault: userData.isDefault || false,
+      },
+    });
+
+    // Create team for user
+    await prisma.team.upsert({
+      where: { 
+        ownerId_leagueId: {
+          ownerId: user.id,
+          leagueId: defaultLeague.id,
+        }
+      },
+      update: {},
+      create: {
+        name: userData.teamName,
+        sleeperRosterId: userData.sleeperRosterId,
+        ownerId: user.id,
         leagueId: defaultLeague.id,
-      }
-    },
-    update: {},
-    create: {
-      userId: defaultUser.id,
-      leagueId: defaultLeague.id,
-      role: 'owner',
-    },
-  });
+      },
+    });
+
+    console.log(`Created user ${userData.email} with team ${userData.teamName}`);
+  }
 
   console.log('Seed data created successfully');
-  console.log(`Default user: ${defaultUser.email}`);
   console.log(`Default league: ${defaultLeague.name} (${defaultLeague.sleeperLeagueId})`);
 }
 

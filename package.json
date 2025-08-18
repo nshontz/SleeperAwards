@@ -10,6 +10,7 @@
     "seed": "npx tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@kinde-oss/kinde-auth-nextjs": "^2.8.6",
     "@prisma/client": "^6.14.0",
     "next": "15.4.6",
     "prisma": "^6.14.0",
