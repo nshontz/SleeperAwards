@@ -6,8 +6,8 @@ import {AwardsCalculator} from '@/lib/awards-calculator';
 import {AwardCard} from '@/components/AwardCard';
 import {AwardModal} from '@/components/AwardModal';
 import {Award} from '@/types/sleeper';
+import {getDefaultSleeperLeagueId} from '@/lib/default-data';
 
-const LEAGUE_ID: string = process.env.NEXT_PUBLIC_LEAGUE_ID || '';
 const CACHE_DURATION = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
 const CACHE_KEY = 'sleeper_awards_cache';
 
@@ -19,10 +19,6 @@ export default function AwardsPage() {
   const [leagueName, setLeagueName] = useState('Bine to Shrine Fantasy League');
 
   useEffect(() => {
-    if (LEAGUE_ID === '') {
-      throw new Error('NEXT_PUBLIC_LEAGUE_ID environment variable is required');
-    }
-
     loadAwards();
   }, []);
 
@@ -43,7 +39,10 @@ export default function AwardsPage() {
           return;
         }
       }
-      const api = new SleeperAPI(LEAGUE_ID);
+      
+      // Get league ID from database
+      const leagueId = await getDefaultSleeperLeagueId();
+      const api = new SleeperAPI(leagueId);
 
       const [league, rosters, users, allMatchups] = await Promise.all([
         api.getLeague(),

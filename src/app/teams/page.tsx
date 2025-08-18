@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { SleeperAPI } from '@/lib/sleeper-api';
 import { AwardsCalculator } from '@/lib/awards-calculator';
 import { SleeperLeague, SleeperRoster, SleeperUser, Award } from '@/types/sleeper';
+import { getDefaultSleeperLeagueId } from '@/lib/default-data';
 
 interface TeamWithStats extends SleeperRoster {
   teamName: string;
@@ -29,7 +30,8 @@ export default function TeamsPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const sleeperApi = new SleeperAPI(process.env.NEXT_PUBLIC_LEAGUE_ID || '');
+        const leagueId = await getDefaultSleeperLeagueId();
+        const sleeperApi = new SleeperAPI(leagueId);
 
         // Fetch league data
         const league = await sleeperApi.getLeague();
