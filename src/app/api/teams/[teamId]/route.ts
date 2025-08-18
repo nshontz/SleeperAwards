@@ -15,7 +15,11 @@ export async function GET(request: Request, context: RouteContext) {
       );
     }
 
-    const user = await ensureUserExists(kindeUser);
+    const user = await ensureUserExists({
+      email: kindeUser.email,
+      given_name: kindeUser.given_name,
+      family_name: kindeUser.family_name,
+    });
     const { teamId } = await context.params;
     const team = await getUserTeam(user.id, teamId);
 

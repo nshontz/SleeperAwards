@@ -28,8 +28,8 @@ export async function getAuthenticatedUser() {
 
 export async function ensureUserExists(kindeUser: {
   email: string | null;
-  given_name?: string;
-  family_name?: string;
+  given_name?: string | null;
+  family_name?: string | null;
 }) {
   const email = kindeUser.email;
   if (!email) {

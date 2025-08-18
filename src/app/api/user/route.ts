@@ -11,7 +11,11 @@ export async function GET() {
       );
     }
 
-    const user = await ensureUserExists(kindeUser);
+    const user = await ensureUserExists({
+      email: kindeUser.email,
+      given_name: kindeUser.given_name,
+      family_name: kindeUser.family_name,
+    });
     
     return NextResponse.json({ 
       user: {

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { SleeperAPI } from '@/lib/sleeper-api';
 import { AwardsCalculator } from '@/lib/awards-calculator';
-import { SleeperLeague, SleeperRoster, SleeperUser, Award } from '@/types/sleeper';
+import { SleeperRoster, Award } from '@/types/sleeper';
 import { getDefaultSleeperLeagueId } from '@/lib/default-data';
 
 interface TeamWithStats extends SleeperRoster {
@@ -115,7 +115,7 @@ export default function TeamsPage() {
           .map((team, index) => ({ ...team, rank: index + 1 }));
 
         // Filter teams to show only user's teams
-        const userTeamRosterIds = user.teams.map(t => t.sleeperRosterId);
+        const userTeamRosterIds = user?.teams.map(t => t.sleeperRosterId) || [];
         const userOwnedTeams = sortedTeams.filter(team => 
           userTeamRosterIds.includes(team.roster_id.toString())
         );
