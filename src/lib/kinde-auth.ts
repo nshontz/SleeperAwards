@@ -48,24 +48,9 @@ export async function ensureUserExists(kindeUser: {
     },
   });
 
-  // Create user if doesn't exist
+  // Don't create user automatically - they must be pre-registered
   if (!user) {
-    user = await prisma.user.create({
-      data: {
-        email,
-        name: kindeUser.given_name && kindeUser.family_name 
-          ? `${kindeUser.given_name} ${kindeUser.family_name}`
-          : kindeUser.given_name || email,
-        // Note: No password needed for Kinde auth
-      },
-      include: {
-        teams: {
-          include: {
-            league: true,
-          },
-        },
-      },
-    });
+    throw new Error('ACCOUNT_NOT_FOUND');
   }
 
   return user;
