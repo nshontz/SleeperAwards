@@ -37,7 +37,7 @@ export async function ensureUserExists(kindeUser: {
   }
 
   // Check if user exists in our database
-  let user = await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: { email },
     include: {
       teams: {

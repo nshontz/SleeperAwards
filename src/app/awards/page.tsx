@@ -1,7 +1,7 @@
 'use client';
 
 import React, {useEffect, useState} from 'react';
-import {useRouter} from 'next/navigation';
+import Link from 'next/link';
 import {SleeperAPI} from '@/lib/sleeper-api';
 import {AwardsCalculator} from '@/lib/awards-calculator';
 import {AwardCard} from '@/components/AwardCard';
@@ -18,9 +18,18 @@ export default function AwardsPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedAward, setSelectedAward] = useState<Award | null>(null);
   const [leagueName, setLeagueName] = useState('Bine to Shrine Fantasy League');
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{
+    id: string;
+    email: string;
+    name: string | null;
+    teams: Array<{
+      id: string;
+      name: string;
+      sleeperRosterId: string | null;
+      leagueId: string;
+    }>;
+  } | null>(null);
   const [authError, setAuthError] = useState<string | null>(null);
-  const router = useRouter();
 
   // Check user account status (middleware handles auth)
   useEffect(() => {
@@ -116,18 +125,18 @@ export default function AwardsPage() {
           <h2 className="text-2xl font-bold text-white mb-4">Access Denied</h2>
           <p className="text-white/90 mb-6">{authError}</p>
           <div className="space-y-3">
-            <a
+            <Link
               href="/api/auth/logout"
               className="block bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded font-semibold transition-colors"
             >
               Sign Out
-            </a>
-            <a
+            </Link>
+            <Link
               href="/"
               className="block bg-hop-gold hover:bg-hop-gold/90 text-hop-brown px-6 py-2 rounded font-semibold transition-colors"
             >
               Go Home
-            </a>
+            </Link>
           </div>
         </div>
       </div>

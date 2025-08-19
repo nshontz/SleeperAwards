@@ -1,13 +1,14 @@
 import { withAuth } from "@kinde-oss/kinde-auth-nextjs/middleware";
+import { NextRequest } from "next/server";
 
 export default withAuth(
-  async function middleware(req) {
+  async function middleware(req: NextRequest) {
     // Additional middleware logic can be added here if needed
     // For now, just use Kinde's default auth middleware
   },
   {
     callbacks: {
-      authorized: ({ token }) => {
+      authorized: ({ token }: { token: unknown }) => {
         // Return true if user has a valid token, false otherwise
         return !!token;
       },

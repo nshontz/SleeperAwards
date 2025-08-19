@@ -30,7 +30,6 @@ async function main() {
       create: {
         email: userData.email,
         name: userData.name,
-        password: 'password123', // In production, this should be hashed
       },
     });
 

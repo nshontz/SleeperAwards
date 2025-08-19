@@ -6,7 +6,6 @@ const prisma = new PrismaClient();
 export async function GET() {
   try {
     const defaultUser = await prisma.user.findFirst({
-      where: { isDefault: true },
       include: {
         teams: {
           include: {
@@ -16,9 +15,7 @@ export async function GET() {
       },
     });
 
-    const defaultLeague = await prisma.league.findFirst({
-      where: { isDefault: true },
-    });
+    const defaultLeague = await prisma.league.findFirst();
 
     if (!defaultUser || !defaultLeague) {
       return NextResponse.json(

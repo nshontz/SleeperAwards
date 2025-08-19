@@ -6,7 +6,6 @@ const prisma = new PrismaClient();
 export async function GET() {
   try {
     const defaultLeague = await prisma.league.findFirst({
-      where: { isDefault: true },
       select: { sleeperLeagueId: true },
     });
 

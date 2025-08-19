@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { SleeperAPI } from '@/lib/sleeper-api';
 import { AwardsCalculator } from '@/lib/awards-calculator';
 import { SleeperRoster, Award } from '@/types/sleeper';
@@ -39,7 +38,6 @@ export default function TeamsPage() {
     }>;
   } | null>(null);
   const [authError, setAuthError] = useState<string | null>(null);
-  const router = useRouter();
 
   // Check user account status (middleware handles auth)
   useEffect(() => {
@@ -205,18 +203,18 @@ export default function TeamsPage() {
           <h2 className="text-2xl font-bold text-white mb-4">Access Denied</h2>
           <p className="text-white/90 mb-6">{authError}</p>
           <div className="space-y-3">
-            <a
+            <Link
               href="/api/auth/logout"
               className="block bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded font-semibold transition-colors"
             >
               Sign Out
-            </a>
-            <a
+            </Link>
+            <Link
               href="/"
               className="block bg-hop-gold hover:bg-hop-gold/90 text-hop-brown px-6 py-2 rounded font-semibold transition-colors"
             >
               Go Home
-            </a>
+            </Link>
           </div>
         </div>
       </div>
