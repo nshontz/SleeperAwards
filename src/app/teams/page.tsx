@@ -38,26 +38,35 @@ export default function TeamsPage() {
       leagueId: string;
     }>;
   } | null>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
   const router = useRouter();
 
-  // Check authentication
+  // Check user account status (middleware handles auth)
   useEffect(() => {
-    async function checkAuth() {
+    async function fetchUser() {
       try {
         const response = await fetch('/api/user');
+        if (response.status === 403) {
+          const data = await response.json();
+          if (data.error === 'ACCOUNT_NOT_FOUND') {
+            setAuthError(data.message);
+            setLoading(false);
+            return;
+          }
+        }
         if (!response.ok) {
-          router.push('/login');
-          return;
+          throw new Error('Failed to fetch user');
         }
         const data = await response.json();
         setUser(data.user);
       } catch (error) {
-        console.error('Auth check failed:', error);
-        router.push('/login');
+        console.error('User fetch failed:', error);
+        setAuthError('Failed to load user data. Please try again.');
+        setLoading(false);
       }
     }
-    checkAuth();
-  }, [router]);
+    fetchUser();
+  }, []);
 
   useEffect(() => {
     if (!user) return; // Wait for authentication
@@ -187,6 +196,32 @@ export default function TeamsPage() {
 
     fetchData();
   }, [user]);
+
+  if (authError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-hop-green to-hop-brown flex items-center justify-center">
+        <div className="bg-white/10 backdrop-blur-md rounded-lg p-8 max-w-md text-center">
+          <div className="text-6xl mb-4">🚫</div>
+          <h2 className="text-2xl font-bold text-white mb-4">Access Denied</h2>
+          <p className="text-white/90 mb-6">{authError}</p>
+          <div className="space-y-3">
+            <a
+              href="/api/auth/logout"
+              className="block bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded font-semibold transition-colors"
+            >
+              Sign Out
+            </a>
+            <a
+              href="/"
+              className="block bg-hop-gold hover:bg-hop-gold/90 text-hop-brown px-6 py-2 rounded font-semibold transition-colors"
+            >
+              Go Home
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

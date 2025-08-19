@@ -18,8 +18,6 @@ model User {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String?
-  password  String?  // For authentication
-  isDefault Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
@@ -48,7 +46,6 @@ model League {
   name            String
   description     String?
   sleeperLeagueId String   @unique
-  isDefault       Boolean  @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   

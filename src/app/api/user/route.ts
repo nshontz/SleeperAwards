@@ -27,6 +27,14 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Error fetching user:', error);
+    
+    if (error instanceof Error && error.message === 'ACCOUNT_NOT_FOUND') {
+      return NextResponse.json(
+        { error: 'ACCOUNT_NOT_FOUND', message: 'Your account is not registered in this league. Please contact an administrator.' },
+        { status: 403 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Failed to fetch user' },
       { status: 500 }

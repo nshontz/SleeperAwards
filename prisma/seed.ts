@@ -11,7 +11,6 @@ async function main() {
       name: 'Bine to Shrine Fantasy League',
       description: 'Default Sleeper league',
       sleeperLeagueId: '1262129908398694400',
-      isDefault: true,
     },
   });
 
@@ -20,7 +19,7 @@ async function main() {
     { email: 'user1@example.com', name: 'Team Owner 1', teamName: 'Team Alpha', sleeperRosterId: '1' },
     { email: 'user2@example.com', name: 'Team Owner 2', teamName: 'Team Beta', sleeperRosterId: '2' },
     { email: 'user3@example.com', name: 'Team Owner 3', teamName: 'Team Gamma', sleeperRosterId: '3' },
-    { email: 'admin@example.com', name: 'League Admin', teamName: 'Admin Team', sleeperRosterId: '4', isDefault: true },
+    { email: 'admin@example.com', name: 'League Admin', teamName: 'Admin Team', sleeperRosterId: '4'},
   ];
 
   for (const userData of users) {
@@ -32,7 +31,6 @@ async function main() {
         email: userData.email,
         name: userData.name,
         password: 'password123', // In production, this should be hashed
-        isDefault: userData.isDefault || false,
       },
     });
 
