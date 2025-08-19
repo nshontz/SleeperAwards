@@ -1,13 +1,14 @@
 'use client';
 
 import React, {useEffect, useState} from 'react';
+import Link from 'next/link';
 import {SleeperAPI} from '@/lib/sleeper-api';
 import {AwardsCalculator} from '@/lib/awards-calculator';
 import {AwardCard} from '@/components/AwardCard';
 import {AwardModal} from '@/components/AwardModal';
 import {Award} from '@/types/sleeper';
+import {getDefaultSleeperLeagueId} from '@/lib/default-data';
 
-const LEAGUE_ID: string = process.env.NEXT_PUBLIC_LEAGUE_ID || '';
 const CACHE_DURATION = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
 const CACHE_KEY = 'sleeper_awards_cache';
 
@@ -17,14 +18,51 @@ export default function AwardsPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedAward, setSelectedAward] = useState<Award | null>(null);
   const [leagueName, setLeagueName] = useState('Bine to Shrine Fantasy League');
+  const [user, setUser] = useState<{
+    id: string;
+    email: string;
+    name: string | null;
+    teams: Array<{
+      id: string;
+      name: string;
+      sleeperRosterId: string | null;
+      leagueId: string;
+    }>;
+  } | null>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
+
+  // Check user account status (middleware handles auth)
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const response = await fetch('/api/user');
+        if (response.status === 403) {
+          const data = await response.json();
+          if (data.error === 'ACCOUNT_NOT_FOUND') {
+            setAuthError(data.message);
+            setLoading(false);
+            return;
+          }
+        }
+        if (!response.ok) {
+          throw new Error('Failed to fetch user');
+        }
+        const data = await response.json();
+        setUser(data.user);
+      } catch (error) {
+        console.error('User fetch failed:', error);
+        setAuthError('Failed to load user data. Please try again.');
+        setLoading(false);
+      }
+    }
+    fetchUser();
+  }, []);
 
   useEffect(() => {
-    if (LEAGUE_ID === '') {
-      throw new Error('NEXT_PUBLIC_LEAGUE_ID environment variable is required');
+    if (user) {
+      loadAwards();
     }
-
-    loadAwards();
-  }, []);
+  }, [user]);
 
   const loadAwards = async () => {
     try {
@@ -43,7 +81,10 @@ export default function AwardsPage() {
           return;
         }
       }
-      const api = new SleeperAPI(LEAGUE_ID);
+      
+      // Get league ID from database
+      const leagueId = await getDefaultSleeperLeagueId();
+      const api = new SleeperAPI(leagueId);
 
       const [league, rosters, users, allMatchups] = await Promise.all([
         api.getLeague(),
@@ -76,12 +117,38 @@ export default function AwardsPage() {
     }
   };
 
-  if (loading) {
+  if (authError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-hop-green to-green-800 flex items-center justify-center">
+        <div className="bg-white/10 backdrop-blur-md rounded-lg p-8 max-w-md text-center">
+          <div className="text-6xl mb-4">🚫</div>
+          <h2 className="text-2xl font-bold text-white mb-4">Access Denied</h2>
+          <p className="text-white/90 mb-6">{authError}</p>
+          <div className="space-y-3">
+            <Link
+              href="/api/auth/logout"
+              className="block bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded font-semibold transition-colors"
+            >
+              Sign Out
+            </Link>
+            <Link
+              href="/"
+              className="block bg-hop-gold hover:bg-hop-gold/90 text-hop-brown px-6 py-2 rounded font-semibold transition-colors"
+            >
+              Go Home
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading || !user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-hop-green to-green-800 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-hop-gold mx-auto mb-4"></div>
-          <p className="text-white text-xl">Brewing up the awards...</p>
+          <p className="text-white text-xl">{!user ? 'Checking authentication...' : 'Brewing up the awards...'}</p>
         </div>
       </div>
     );

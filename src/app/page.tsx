@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function Home() {
 
   return (
@@ -51,14 +53,13 @@ export default function Home() {
             <p className="text-white/80 dark:text-gray-300 text-lg">
               Teams broken down by division with rankings, records, and top awards
             </p>
-            <div className="mt-6 inline-block bg-hop-gold dark:bg-hop-gold text-hop-brown px-6 py-3 rounded-lg font-semibold group-hover:bg-yellow-400 transition-colors">
-
-              <a
+            <div className="mt-6">
+              <Link
                 href="/teams"
-                className="bg-white/10 dark:bg-gray-700/30 backdrop-blur-md rounded-lg p-8 hover:bg-white/20 dark:hover:bg-gray-600/40 transition-all transform hover:scale-105 group"
+                className="inline-block bg-hop-gold dark:bg-hop-gold text-hop-brown px-6 py-3 rounded-lg font-semibold hover:bg-yellow-400 transition-colors"
               >
                 View Standings →
-              </a>
+              </Link>
             </div>
           </div>
         </div>

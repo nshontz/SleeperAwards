@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { SleeperAPI } from '@/lib/sleeper-api';
 import { AwardsCalculator } from '@/lib/awards-calculator';
-import { SleeperLeague, SleeperRoster, SleeperUser, Award } from '@/types/sleeper';
+import { SleeperRoster, Award } from '@/types/sleeper';
+import { getDefaultSleeperLeagueId } from '@/lib/default-data';
 
 interface TeamWithStats extends SleeperRoster {
   teamName: string;
@@ -25,11 +26,53 @@ export default function TeamsPage() {
   const [awards, setAwards] = useState<Award[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [user, setUser] = useState<{
+    id: string;
+    email: string;
+    name: string | null;
+    teams: Array<{
+      id: string;
+      name: string;
+      sleeperRosterId: string | null;
+      leagueId: string;
+    }>;
+  } | null>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
+
+  // Check user account status (middleware handles auth)
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const response = await fetch('/api/user');
+        if (response.status === 403) {
+          const data = await response.json();
+          if (data.error === 'ACCOUNT_NOT_FOUND') {
+            setAuthError(data.message);
+            setLoading(false);
+            return;
+          }
+        }
+        if (!response.ok) {
+          throw new Error('Failed to fetch user');
+        }
+        const data = await response.json();
+        setUser(data.user);
+      } catch (error) {
+        console.error('User fetch failed:', error);
+        setAuthError('Failed to load user data. Please try again.');
+        setLoading(false);
+      }
+    }
+    fetchUser();
+  }, []);
 
   useEffect(() => {
+    if (!user) return; // Wait for authentication
+
     async function fetchData() {
       try {
-        const sleeperApi = new SleeperAPI(process.env.NEXT_PUBLIC_LEAGUE_ID || '');
+        const leagueId = await getDefaultSleeperLeagueId();
+        const sleeperApi = new SleeperAPI(leagueId);
 
         // Fetch league data
         const league = await sleeperApi.getLeague();
@@ -78,11 +121,23 @@ export default function TeamsPage() {
           .sort((a, b) => b.totalPoints - a.totalPoints)
           .map((team, index) => ({ ...team, rank: index + 1 }));
 
-        // Use Sleeper divisions if available, otherwise create manual divisions
+        // Filter teams to show only user's teams
+        const userTeamRosterIds = user?.teams.map(t => t.sleeperRosterId) || [];
+        const userOwnedTeams = sortedTeams.filter(team => 
+          userTeamRosterIds.includes(team.roster_id.toString())
+        );
+
+        // Create a single division with user's teams
         let divisions: Division[] = [];
-        
-        // Check if league has division settings
-        const hasDivisions = league.settings?.divisions && league.settings.divisions > 1;
+        if (userOwnedTeams.length > 0) {
+          divisions = [{
+            name: 'My Teams',
+            teams: userOwnedTeams
+          }];
+        }
+
+        // Use Sleeper divisions if available, otherwise create manual divisions
+        const hasDivisions = false; // Disable divisions for user view
         
         if (hasDivisions) {
           // Create divisions based on Sleeper division assignments
@@ -138,7 +193,33 @@ export default function TeamsPage() {
     }
 
     fetchData();
-  }, []);
+  }, [user]);
+
+  if (authError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-hop-green to-hop-brown flex items-center justify-center">
+        <div className="bg-white/10 backdrop-blur-md rounded-lg p-8 max-w-md text-center">
+          <div className="text-6xl mb-4">🚫</div>
+          <h2 className="text-2xl font-bold text-white mb-4">Access Denied</h2>
+          <p className="text-white/90 mb-6">{authError}</p>
+          <div className="space-y-3">
+            <Link
+              href="/api/auth/logout"
+              className="block bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded font-semibold transition-colors"
+            >
+              Sign Out
+            </Link>
+            <Link
+              href="/"
+              className="block bg-hop-gold hover:bg-hop-gold/90 text-hop-brown px-6 py-2 rounded font-semibold transition-colors"
+            >
+              Go Home
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -166,8 +247,17 @@ export default function TeamsPage() {
     <div className="page-container">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-4">🏆 Team Standings</h1>
-          <p className="text-hop-gold text-lg">Teams ranked by total points scored</p>
+          <div className="flex justify-between items-center mb-4">
+            <div></div>
+            <h1 className="text-4xl font-bold text-white">🏆 My Teams</h1>
+            <Link
+              href="/api/auth/logout"
+              className="bg-red-600 text-white px-4 py-2 rounded font-semibold"
+            >
+              Logout
+            </Link>
+          </div>
+          <p className="text-hop-gold text-lg">Welcome back, {user?.name || user?.email}</p>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
@@ -185,14 +275,14 @@ export default function TeamsPage() {
                     {division.teams.map((team) => (
                       <div 
                         key={team.roster_id}
-                        className="bg-white/20 dark:bg-gray-700/50 rounded-lg p-3 hover:bg-white/30 dark:hover:bg-gray-600/60 transition-all"
+                        className="bg-white/20 dark:bg-gray-700/50 rounded-lg p-3"
                       >
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center space-x-2">
                             <span className="bg-hop-gold text-hop-brown font-bold rounded-full w-6 h-6 flex items-center justify-center text-xs">
                               {team.rank}
                             </span>
-                            <Link href={`/team/${team.roster_id}`} className="font-semibold text-white text-sm hover:text-hop-gold transition-colors">
+                            <Link href={`/teams/${team.roster_id}`} className="font-semibold text-white text-sm">
                               {team.teamName}
                             </Link>
                           </div>
@@ -221,8 +311,8 @@ export default function TeamsPage() {
                         
                         <div className="text-center">
                           <Link 
-                            href={`/team/${team.roster_id}`}
-                            className="inline-block bg-hop-gold text-hop-brown px-3 py-1 rounded text-xs font-semibold hover:bg-yellow-400 transition-colors"
+                            href={`/teams/${team.roster_id}`}
+                            className="inline-block bg-hop-gold text-hop-brown px-3 py-1 rounded text-xs font-semibold"
                           >
                             View Team Details →
                           </Link>
@@ -241,7 +331,7 @@ export default function TeamsPage() {
             <div className="bg-white/10 dark:bg-gray-800/50 backdrop-blur-md rounded-lg p-6">
               <div className="space-y-4 max-h-[800px] overflow-y-auto">
                 {awards.filter(award => award.winner).map((award) => (
-                  <div key={award.id} className="bg-white/20 dark:bg-gray-700/50 rounded-lg p-4 hover:bg-white/30 dark:hover:bg-gray-600/60 transition-all">
+                  <div key={award.id} className="bg-white/20 dark:bg-gray-700/50 rounded-lg p-4">
                     <div className="flex items-start space-x-3">
                       <span className="text-2xl flex-shrink-0">{award.icon}</span>
                       <div className="flex-1 min-w-0">

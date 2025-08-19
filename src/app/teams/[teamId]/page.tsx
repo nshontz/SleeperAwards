@@ -3,7 +3,8 @@
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { SleeperAPI } from '@/lib/sleeper-api';
-import { SleeperLeague, SleeperRoster, SleeperUser, SleeperMatchup, SleeperPlayer, TrendingPlayer } from '@/types/sleeper';
+import { SleeperRoster, SleeperUser, SleeperMatchup, SleeperPlayer, TrendingPlayer } from '@/types/sleeper';
+import { getDefaultSleeperLeagueId } from '@/lib/default-data';
 
 interface TeamPageProps {
   params: Promise<{
@@ -45,10 +46,11 @@ export default function TeamPage({ params }: TeamPageProps) {
     async function fetchTeamData() {
       try {
         setLoading(true);
-        const sleeperApi = new SleeperAPI(process.env.NEXT_PUBLIC_LEAGUE_ID || '');
+        const leagueId = await getDefaultSleeperLeagueId();
+        const sleeperApi = new SleeperAPI(leagueId);
 
         // Fetch basic data
-        const [league, rosters, users, allMatchups, allPlayers, trendingPlayers] = await Promise.all([
+        const [, rosters, users, allMatchups, allPlayers, trendingPlayers] = await Promise.all([
           sleeperApi.getLeague(),
           sleeperApi.getRosters(),
           sleeperApi.getUsers(),

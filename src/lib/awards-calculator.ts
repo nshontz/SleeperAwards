@@ -143,7 +143,7 @@ export class AwardsCalculator {
     });
 
     const leaderboard = Array.from(teamWeeklyScores.entries())
-      .filter(([_, scores]) => scores.length > 0)
+      .filter(([, scores]) => scores.length > 0)
       .map(([rosterId, scores]) => ({
         rank: 0,
         teamName: this.teamNames.get(rosterId) || '',
@@ -198,7 +198,7 @@ export class AwardsCalculator {
     });
 
     const leaderboard = Array.from(teamWeeklyScores.entries())
-      .filter(([_, scores]) => scores.length > 0)
+      .filter(([, scores]) => scores.length > 0)
       .map(([rosterId, scores]) => ({
         rank: 0,
         teamName: this.teamNames.get(rosterId) || '',
