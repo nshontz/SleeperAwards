@@ -21,14 +21,14 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  // User owns teams
-  teams     Team[]
+  // Relationships
+  teams     Team[]   // User owns teams
 }
 
 model Team {
   id              String   @id @default(cuid())
   name            String
-  sleeperRosterId String?  @unique // Link to Sleeper roster
+  sleeperRosterId String?  // Link to Sleeper roster
   ownerId         String   // User who owns this team
   leagueId        String   // League this team belongs to
   createdAt       DateTime @default(now())
@@ -49,6 +49,6 @@ model League {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   
-  // League contains teams
-  teams           Team[]
+  // Relationships
+  teams           Team[]   // League contains teams
 }

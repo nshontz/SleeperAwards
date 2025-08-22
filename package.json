@@ -7,7 +7,11 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "npx tsx prisma/seed.ts"
+    "seed": "npx tsx prisma/seed.ts",
+    "seed:leagues": "npx tsx prisma/seeders/leagues.ts",
+    "seed:users": "npx tsx prisma/seeders/users.ts",
+    "seed:teams": "npx tsx prisma/seeders/teams.ts",
+    "seed:all": "npm run seed:leagues && npm run seed:users && npm run seed:teams"
   },
   "dependencies": {
     "@kinde-oss/kinde-auth-nextjs": "^2.8.6",
