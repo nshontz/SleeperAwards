@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { SleeperAPI } from '@/lib/sleeper-api';
 import { AwardsCalculator } from '@/lib/awards-calculator';
 import { SleeperRoster, Award } from '@/types/sleeper';
-import { getDefaultSleeperLeagueId } from '@/lib/default-data';
+import { TeamSelector } from '@/components/TeamSelector';
 
 interface TeamWithStats extends SleeperRoster {
   teamName: string;
@@ -38,6 +38,7 @@ export default function TeamsPage() {
     }>;
   } | null>(null);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [activeTeam, setActiveTeam] = useState<any>(null);
 
   // Check user account status (middleware handles auth)
   useEffect(() => {
@@ -67,12 +68,11 @@ export default function TeamsPage() {
   }, []);
 
   useEffect(() => {
-    if (!user) return; // Wait for authentication
+    if (!user || !activeTeam) return; // Wait for authentication and active team
 
     async function fetchData() {
       try {
-        const leagueId = await getDefaultSleeperLeagueId();
-        const sleeperApi = new SleeperAPI(leagueId);
+        const sleeperApi = new SleeperAPI(activeTeam.league.sleeperLeagueId);
 
         // Fetch league data
         const league = await sleeperApi.getLeague();
@@ -121,18 +121,18 @@ export default function TeamsPage() {
           .sort((a, b) => b.totalPoints - a.totalPoints)
           .map((team, index) => ({ ...team, rank: index + 1 }));
 
-        // Filter teams to show only user's teams
-        const userTeamRosterIds = user?.teams.map(t => t.sleeperRosterId) || [];
-        const userOwnedTeams = sortedTeams.filter(team => 
-          userTeamRosterIds.includes(team.roster_id.toString())
+        // Filter teams to show only the active team
+        const activeTeamRosterId = activeTeam.sleeperRosterId;
+        const userActiveTeam = sortedTeams.filter(team => 
+          team.roster_id.toString() === activeTeamRosterId
         );
 
-        // Create a single division with user's teams
+        // Create a single division with the active team
         let divisions: Division[] = [];
-        if (userOwnedTeams.length > 0) {
+        if (userActiveTeam.length > 0) {
           divisions = [{
-            name: 'My Teams',
-            teams: userOwnedTeams
+            name: `${activeTeam.name} - ${activeTeam.league.name}`,
+            teams: userActiveTeam
           }];
         }
 
@@ -193,7 +193,11 @@ export default function TeamsPage() {
     }
 
     fetchData();
-  }, [user]);
+  }, [user, activeTeam]);
+
+  const handleTeamChange = (team: any) => {
+    setActiveTeam(team);
+  };
 
   if (authError) {
     return (
@@ -248,8 +252,8 @@ export default function TeamsPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <div className="flex justify-between items-center mb-4">
-            <div></div>
-            <h1 className="text-4xl font-bold text-white">🏆 My Teams</h1>
+            <TeamSelector onTeamChange={handleTeamChange} className="max-w-xs" />
+            <h1 className="text-4xl font-bold text-white">🏆 My Team</h1>
             <Link
               href="/api/auth/logout"
               className="bg-red-600 text-white px-4 py-2 rounded font-semibold"

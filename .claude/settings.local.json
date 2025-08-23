@@ -3,7 +3,14 @@
     "allow": [
       "Bash(find:*)",
       "Bash(npm run type-check:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(npx prisma generate:*)",
+      "Bash(npx prisma:*)",
+      "Bash(curl:*)",
+      "Bash(PGPASSWORD=PastaSauce22 psql -h localhost -U nickshontz -d bine_time -c \"SELECT version();\")",
+      "Bash(psql:*)",
+      "Bash(brew services restart:*)",
+      "Bash(brew services:*)"
     ],
     "deny": []
   }

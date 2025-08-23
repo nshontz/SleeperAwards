@@ -14,6 +14,7 @@
     "seed:all": "npm run seed:leagues && npm run seed:users && npm run seed:teams"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@kinde-oss/kinde-auth-nextjs": "^2.8.6",
     "@prisma/client": "^6.14.0",
     "next": "15.4.6",

@@ -7,7 +7,7 @@ import {AwardsCalculator} from '@/lib/awards-calculator';
 import {AwardCard} from '@/components/AwardCard';
 import {AwardModal} from '@/components/AwardModal';
 import {Award} from '@/types/sleeper';
-import {getDefaultSleeperLeagueId} from '@/lib/default-data';
+import {TeamSelector} from '@/components/TeamSelector';
 
 const CACHE_DURATION = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
 const CACHE_KEY = 'sleeper_awards_cache';
@@ -30,6 +30,7 @@ export default function AwardsPage() {
     }>;
   } | null>(null);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [activeTeam, setActiveTeam] = useState<any>(null);
 
   // Check user account status (middleware handles auth)
   useEffect(() => {
@@ -59,10 +60,14 @@ export default function AwardsPage() {
   }, []);
 
   useEffect(() => {
-    if (user) {
+    if (user && activeTeam) {
       loadAwards();
     }
-  }, [user]);
+  }, [user, activeTeam]);
+
+  const handleTeamChange = (team: any) => {
+    setActiveTeam(team);
+  };
 
   const loadAwards = async () => {
     try {
@@ -82,9 +87,8 @@ export default function AwardsPage() {
         }
       }
       
-      // Get league ID from database
-      const leagueId = await getDefaultSleeperLeagueId();
-      const api = new SleeperAPI(leagueId);
+      // Use active team's league
+      const api = new SleeperAPI(activeTeam.league.sleeperLeagueId);
 
       const [league, rosters, users, allMatchups] = await Promise.all([
         api.getLeague(),
@@ -176,9 +180,18 @@ export default function AwardsPage() {
       <div className="page-header">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-              🏆 Fantasy Football Awards
-            </h1>
+            <div className="flex justify-between items-center mb-4">
+              <TeamSelector onTeamChange={handleTeamChange} className="max-w-xs" />
+              <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+                🏆 Fantasy Football Awards
+              </h1>
+              <Link
+                href="/api/auth/logout"
+                className="bg-red-600 text-white px-4 py-2 rounded font-semibold"
+              >
+                Logout
+              </Link>
+            </div>
             <p className="text-xl text-hop-green dark:text-hop-gold font-semibold">
               {leagueName}
             </p>

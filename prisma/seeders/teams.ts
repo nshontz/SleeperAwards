@@ -1,5 +1,5 @@
 import { PrismaClient } from '../../src/generated/prisma';
-import {CreateTeamInput, Team} from '../../src/types/database';
+import { Team} from '../../src/types/database';
 
 const prisma = new PrismaClient();
 
