@@ -1,37 +1,27 @@
 import { PrismaClient } from '../generated/prisma';
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 
 const prisma = new PrismaClient();
 
-export interface KindeUser {
+export interface ClerkUser {
   id: string;
-  email: string;
-  given_name?: string;
-  family_name?: string;
-  picture?: string;
+  emailAddresses: { emailAddress: string }[];
+  firstName?: string | null;
+  lastName?: string | null;
+  imageUrl?: string;
 }
 
 export async function getAuthenticatedUser() {
-  const { getUser, isAuthenticated } = getKindeServerSession();
+  const { userId } = await auth();
   
-  if (!await isAuthenticated()) {
+  if (!userId) {
     return null;
   }
 
-  const kindeUser = await getUser();
-  if (!kindeUser) {
-    return null;
-  }
-
-  return kindeUser;
+  return { id: userId };
 }
 
-export async function ensureUserExists(kindeUser: {
-  email: string | null;
-  given_name?: string | null;
-  family_name?: string | null;
-}) {
-  const email = kindeUser.email;
+export async function ensureUserExists(email: string) {
   if (!email) {
     throw new Error('User email is required');
   }

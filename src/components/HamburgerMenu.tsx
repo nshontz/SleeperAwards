@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { SignOutButton } from '@clerk/nextjs';
 
 interface User {
   id: string;
@@ -15,6 +16,7 @@ interface User {
     leagueId: string;
   }>;
 }
+
 
 export function HamburgerMenu() {
   const [isOpen, setIsOpen] = useState(false);
@@ -59,10 +61,17 @@ export function HamburgerMenu() {
     fetchUser();
   }, []);
 
-  const menuItems = [
+  const hasTeams = user?.teams && user.teams.length > 0;
+
+  console.log(hasTeams)
+
+  const menuItems = hasTeams ? [
     { href: '/', label: 'Home', icon: '🏠' },
     { href: '/teams', label: 'Team Standings', icon: '📊' },
-    { href: '/awards', label: 'Awards', icon: '🏆' }
+    { href: '/awards', label: 'Awards', icon: '🏆' },
+    { href: '/join-league', label: 'Join League', icon: '➕' }
+  ] : [
+    { href: '/join-league', label: 'Join League', icon: '➕' }
   ];
 
   const toggleMenu = () => {
@@ -119,6 +128,7 @@ export function HamburgerMenu() {
           ))}
         </nav>
 
+
         <div className="hamburger-menu-footer">
           {userLoading ? (
             <div className="flex items-center space-x-2">
@@ -131,9 +141,6 @@ export function HamburgerMenu() {
           ) : user ? (
             <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
               <div className="flex items-center space-x-3 mb-2">
-                <div className="w-8 h-8 bg-hop-gold text-hop-brown rounded-full flex items-center justify-center text-sm font-bold">
-                  {user.name?.charAt(0) || user.email.charAt(0)}
-                </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                     {user.name || user.email.split('@')[0]}
@@ -143,7 +150,6 @@ export function HamburgerMenu() {
                   </p>
                 </div>
               </div>
-              
               {user.teams && user.teams.length > 0 && (
                 <div className="mb-2">
                   <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
@@ -167,15 +173,14 @@ export function HamburgerMenu() {
                 </div>
               )}
 
-              <Link
-                href="/api/auth/logout"
-                className="inline-flex items-center text-xs  hover:text-red-700 dark:hover:text-red-300 transition-colors"
-              >
-                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-                Sign Out
-              </Link>
+              <SignOutButton>
+                <button className="inline-flex items-center text-xs hover:text-red-700 dark:hover:text-red-300 transition-colors">
+                  <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  Sign Out
+                </button>
+              </SignOutButton>
             </div>
           ) : (
             <div className="border-t border-gray-200 dark:border-gray-700 pt-3">

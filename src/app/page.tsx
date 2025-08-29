@@ -1,67 +1,158 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+
+interface User {
+  id: string;
+  email: string;
+  name: string | null;
+  teams: Array<{
+    id: string;
+    name: string;
+    sleeperRosterId: string | null;
+    leagueId: string;
+  }>;
+}
 
 export default function Home() {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const response = await fetch('/api/user');
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchUser();
+  }, []);
+
+  const hasTeams = user?.teams && user.teams.length > 0;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background to-muted/50 p-4">
+        <div className="container max-w-4xl mx-auto py-16">
+          <Card className="backdrop-blur-md bg-card/95 shadow-2xl">
+            <CardHeader className="text-center">
+              <Skeleton className="h-12 w-3/4 mx-auto mb-4" />
+              <Skeleton className="h-6 w-1/2 mx-auto" />
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-8">
+                <Skeleton className="h-48 w-full" />
+                <Skeleton className="h-48 w-full" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hasTeams) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background to-muted/50 p-4">
+        <div className="container max-w-4xl mx-auto py-16">
+          <Card className="backdrop-blur-md bg-card/95 shadow-2xl">
+            <CardHeader className="text-center">
+              <CardTitle className="text-5xl font-bold mb-4">
+                🍺 Welcome to BineTime 🍺
+              </CardTitle>
+              <CardDescription className="text-xl">
+                Your hop-themed fantasy football hub
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              <Card className="bg-muted/50 mb-8">
+                <CardContent className="p-8">
+                  <p className="text-lg mb-6">
+                    Get started by joining a league with your Sleeper league ID
+                  </p>
+                  <Button asChild size="lg" className="bg-hop-gold hover:bg-hop-gold/90 text-hop-brown font-semibold">
+                    <Link href="/join-league">
+                      Join Your First League →
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="page-container">
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted/50">
       {/* Header */}
-      <div className="page-header">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="text-center">
-            <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-4">
-              🍺 Bine to Shrine Fantasy League 🍺
-            </h1>
-            <p className="text-2xl text-hop-green dark:text-hop-gold font-semibold mb-6">
-              Your hop-themed fantasy football hub
-            </p>
-            <p className="text-gray-600 dark:text-gray-300 text-lg mb-8">
-              From the bine to the shrine - track awards, standings, and more
-            </p>
-          </div>
+      <div className="py-16 px-4">
+        <div className="container mx-auto text-center">
+          <h1 className="text-5xl font-bold mb-4">
+            🍺 Bine to Shrine Fantasy League 🍺
+          </h1>
+          <p className="text-2xl text-primary font-semibold mb-6">
+            Your hop-themed fantasy football hub
+          </p>
+          <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
+            From the bine to the shrine - track awards, standings, and more
+          </p>
         </div>
       </div>
 
       {/* Navigation Cards */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="container max-w-4xl mx-auto px-4 pb-16">
         <div className="grid md:grid-cols-2 gap-8">
           {/* Awards Card */}
-          <div className="text-center">
-
-            <h2 className="text-2xl font-bold text-white group-hover:text-hop-gold dark:group-hover:text-hop-gold transition-colors">
-              Fantasy Awards
-            </h2>
-            <p className="text-white/80 dark:text-gray-300 text-lg">
-              Hop-themed awards tracking the best and worst performances of the season
-            </p>
-            <div className="mt-6 inline-block bg-hop-gold dark:bg-hop-gold text-hop-brown px-6 py-3 rounded-lg font-semibold group-hover:bg-yellow-400 transition-colors">
-
-              <a
-                href="/awards"
-                className="bg-white/10 dark:bg-gray-700/30 backdrop-blur-md rounded-lg p-8 hover:bg-white/20 dark:hover:bg-gray-600/40 transition-all transform hover:scale-105 group"
-              >
-                View Awards →
-              </a>
-            </div>
-          </div>
+          <Card className="group hover:scale-105 transition-all duration-300 hover:shadow-xl backdrop-blur-md bg-card/95 border-2 hover:border-primary/50">
+            <Link href="/awards" className="block h-full">
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl group-hover:text-primary transition-colors">
+                  🏆 Fantasy Awards
+                </CardTitle>
+                <CardDescription className="text-lg">
+                  Hop-themed awards tracking the best and worst performances of the season
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <Button className="bg-hop-gold hover:bg-hop-gold/90 text-hop-brown font-semibold">
+                  View Awards →
+                </Button>
+              </CardContent>
+            </Link>
+          </Card>
 
           {/* Team Standings Card */}
-          <div className="text-center">
-
-            <h2 className="text-2xl font-bold text-white group-hover:text-hop-gold dark:group-hover:text-hop-gold transition-colors">
-              Team Standings
-            </h2>
-            <p className="text-white/80 dark:text-gray-300 text-lg">
-              Teams broken down by division with rankings, records, and top awards
-            </p>
-            <div className="mt-6">
-              <Link
-                href="/teams"
-                className="inline-block bg-hop-gold dark:bg-hop-gold text-hop-brown px-6 py-3 rounded-lg font-semibold hover:bg-yellow-400 transition-colors"
-              >
-                View Standings →
-              </Link>
-            </div>
-          </div>
+          <Card className="group hover:scale-105 transition-all duration-300 hover:shadow-xl backdrop-blur-md bg-card/95 border-2 hover:border-primary/50">
+            <Link href="/teams" className="block h-full">
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl group-hover:text-primary transition-colors">
+                  📊 Team Standings
+                </CardTitle>
+                <CardDescription className="text-lg">
+                  Teams broken down by division with rankings, records, and top awards
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <Button className="bg-hop-gold hover:bg-hop-gold/90 text-hop-brown font-semibold">
+                  View Standings →
+                </Button>
+              </CardContent>
+            </Link>
+          </Card>
         </div>
       </div>
     </div>

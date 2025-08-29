@@ -50,10 +50,6 @@ npm install
 yarn install
 ```
 
-3. Update the league ID in `src/app/page.tsx`:
-```typescript
-const LEAGUE_ID = 'your-sleeper-league-id';
-```
 
 4. Run the development server:
 ```bash

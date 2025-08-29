@@ -1,30 +1,35 @@
-import Link from 'next/link';
+import { SignInButton } from '@clerk/nextjs';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function LoginPage() {
   return (
-    <div className="page-container">
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="bg-white/10 dark:bg-gray-800/50 backdrop-blur-md rounded-lg p-8 w-full max-w-md">
-          <h1 className="text-3xl font-bold text-white text-center mb-8">Welcome to BineTime</h1>
-          
-          <div className="space-y-6">
-            <p className="text-white text-center">
-              Sign in to access your fantasy football teams and track your performance.
-            </p>
-
-            <Link
-              href="/api/auth/login"
-              className="w-full bg-hop-gold text-hop-brown px-4 py-3 rounded font-semibold text-center block"
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted/50 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md backdrop-blur-md bg-card/95 shadow-2xl">
+        <CardHeader className="text-center">
+          <CardTitle className="text-3xl font-bold">🍺 Welcome to BineTime</CardTitle>
+          <CardDescription className="text-lg">
+            Sign in to access your fantasy football teams and track your performance.
+          </CardDescription>
+        </CardHeader>
+        
+        <CardContent className="space-y-6">
+          <SignInButton>
+            <Button 
+              className="w-full bg-hop-gold hover:bg-hop-gold/90 text-hop-brown font-semibold" 
+              size="lg"
             >
-              Sign In with Kinde
-            </Link>
+              Sign In with Clerk
+            </Button>
+          </SignInButton>
 
-            <div className="text-center text-gray-300 text-sm">
-              <p>Secure authentication powered by Kinde</p>
-            </div>
+          <div className="text-center">
+            <p className="text-muted-foreground text-sm">
+              Secure authentication powered by Clerk
+            </p>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

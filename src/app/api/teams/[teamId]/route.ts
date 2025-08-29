@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getAuthenticatedUser, ensureUserExists, getUserTeam } from '@/lib/kinde-auth';
+import { getAuthenticatedUser, ensureUserExists, getUserTeam } from '@/lib/clerk-auth';
+import { currentUser } from '@clerk/nextjs/server';
 
 interface RouteContext {
   params: Promise<{ teamId: string }>;
@@ -7,19 +8,23 @@ interface RouteContext {
 
 export async function GET(request: Request, context: RouteContext) {
   try {
-    const kindeUser = await getAuthenticatedUser();
-    if (!kindeUser) {
+    const authResult = await getAuthenticatedUser();
+    if (!authResult) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
       );
     }
 
-    const user = await ensureUserExists({
-      email: kindeUser.email,
-      given_name: kindeUser.given_name,
-      family_name: kindeUser.family_name,
-    });
+    const clerkUser = await currentUser();
+    if (!clerkUser || !clerkUser.primaryEmailAddress) {
+      return NextResponse.json(
+        { error: 'User email not found' },
+        { status: 400 }
+      );
+    }
+
+    const user = await ensureUserExists(clerkUser.primaryEmailAddress.emailAddress);
     const { teamId } = await context.params;
     const team = await getUserTeam(user.id, teamId);
 
