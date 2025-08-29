@@ -32,6 +32,10 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Error fetching user:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace'
+    });
     
     if (error instanceof Error && error.message === 'ACCOUNT_NOT_FOUND') {
       return NextResponse.json(

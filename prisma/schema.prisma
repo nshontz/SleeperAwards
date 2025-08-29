@@ -21,8 +21,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  // User owns teams
-  teams     Team[]
+  // Relationships
+  teams     Team[]   // User owns teams
 }
 
 model Team {
@@ -50,6 +50,6 @@ model League {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   
-  // League contains teams
-  teams           Team[]
+  // Relationships
+  teams           Team[]   // League contains teams
 }

@@ -1,60 +1,24 @@
 import { PrismaClient } from '../src/generated/prisma';
+import { seedLeagues } from './seeders/leagues';
+import { seedUsers } from './seeders/users';
+import { seedTeams } from './seeders/teams';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  // Create default league
-  const defaultLeague = await prisma.league.upsert({
-    where: { sleeperLeagueId: '1262129908398694400' },
-    update: {},
-    create: {
-      name: 'Bine to Shrine Fantasy League',
-      description: 'Default Sleeper league',
-      sleeperLeagueId: '1262129908398694400',
-    },
-  });
+  console.log('🌱 Starting database seeding...\n');
 
-  // Create sample users with teams
-  const users = [
-    { email: 'user1@example.com', name: 'Team Owner 1', teamName: 'Team Alpha', sleeperRosterId: '1' },
-    { email: 'user2@example.com', name: 'Team Owner 2', teamName: 'Team Beta', sleeperRosterId: '2' },
-    { email: 'user3@example.com', name: 'Team Owner 3', teamName: 'Team Gamma', sleeperRosterId: '3' },
-    { email: 'admin@example.com', name: 'League Admin', teamName: 'Admin Team', sleeperRosterId: '4'},
-  ];
+  try {
+    // Seed in order: leagues → users → teams
+    await seedLeagues();
+    await seedUsers();
+    await seedTeams();
 
-  for (const userData of users) {
-    // Create user
-    const user = await prisma.user.upsert({
-      where: { email: userData.email },
-      update: {},
-      create: {
-        email: userData.email,
-        name: userData.name,
-      },
-    });
-
-    // Create team for user
-    await prisma.team.upsert({
-      where: { 
-        ownerId_leagueId: {
-          ownerId: user.id,
-          leagueId: defaultLeague.id,
-        }
-      },
-      update: {},
-      create: {
-        name: userData.teamName,
-        sleeperRosterId: userData.sleeperRosterId,
-        ownerId: user.id,
-        leagueId: defaultLeague.id,
-      },
-    });
-
-    console.log(`Created user ${userData.email} with team ${userData.teamName}`);
+    console.log('🎉 All seeding completed successfully!');
+  } catch (error) {
+    console.error('❌ Seeding failed:', error);
+    throw error;
   }
-
-  console.log('Seed data created successfully');
-  console.log(`Default league: ${defaultLeague.name} (${defaultLeague.sleeperLeagueId})`);
 }
 
 main()
