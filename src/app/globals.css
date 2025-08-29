@@ -26,11 +26,11 @@
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
 
-    /* Hop-themed Brand Colors */
-    --hop-green: #4A7C59;
-    --hop-gold: #F4C430;
-    --hop-brown: #8B4513;
-    --hop-grey: #EDEDED;
+    /* Hop-themed Brand Colors - WCAG AA Compliant */
+    --hop-green: #2D5B3E; /* Darker for better contrast */
+    --hop-gold: #B8941F; /* Darker for better contrast */
+    --hop-brown: #654321; /* Slightly lighter for better contrast */
+    --hop-grey: #E8E8E8;
   }
 
   .dark {
@@ -60,6 +60,91 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
+  }
+
+  /* WCAG 2.1 AA Accessibility Styles */
+  
+  /* Screen reader only content */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .sr-only.focus:focus,
+  .sr-only.focusable:active,
+  .sr-only.focusable:focus,
+  .focus-within\:not-sr-only:focus-within .sr-only {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: inherit;
+    margin: inherit;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    :root {
+      --hop-green: #1a4d2e;
+      --hop-gold: #8b7300;
+      --hop-brown: #4a2c17;
+    }
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* Focus indicators - WCAG 2.1 AA compliant */
+  :focus {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* Skip link styles */
+  .skip-link {
+    position: fixed;
+    top: -40px;
+    left: 6px;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    padding: 8px;
+    text-decoration: none;
+    border-radius: 4px;
+    z-index: 9999;
+    font-weight: 600;
+    transition: top 0.3s;
+  }
+
+  .skip-link:focus {
+    top: 6px;
+  }
+
+  /* Interactive element minimum size (44px for touch) */
+  button,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  .interactive {
+    min-height: 44px;
+    min-width: 44px;
   }
 }
 

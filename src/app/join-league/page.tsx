@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { PageContainer, ResponsiveContainer } from '@/components/ui/responsive-container';
+import { SkipLinks, LoadingAnnouncement, AnnouncementRegion } from '@/components/ui/accessibility';
 import { SleeperTeam, SleeperLeagueSimple } from '@/types/sleeper';
 
 interface LeagueData {
@@ -92,41 +93,60 @@ export default function JoinLeaguePage() {
   };
 
   return (
-    <PageContainer>
-      <ResponsiveContainer maxWidth="4xl" className="py-6 sm:py-8">
-        <Card className="backdrop-blur-md bg-card/95 shadow-xl sm:shadow-2xl">
-          <CardHeader className="text-center p-4 sm:p-6">
-            <CardTitle className="text-xl sm:text-2xl lg:text-3xl font-bold">🍺 Join a League 🍺</CardTitle>
-            <CardDescription className="text-sm sm:text-base">
-              Connect your Sleeper league to get started with BineTime
-            </CardDescription>
-          </CardHeader>
+    <>
+      <SkipLinks />
+      <PageContainer>
+        <ResponsiveContainer maxWidth="4xl" className="py-6 sm:py-8">
+          <main id="main-content">
+            <Card className="backdrop-blur-md bg-card/95 shadow-xl sm:shadow-2xl">
+              <CardHeader className="text-center p-4 sm:p-6">
+                <CardTitle className="text-xl sm:text-2xl lg:text-3xl font-bold">
+                  <span role="img" aria-label="beer mug">🍺</span> Join a League <span role="img" aria-label="beer mug">🍺</span>
+                </CardTitle>
+                <CardDescription className="text-sm sm:text-base">
+                  Connect your Sleeper league to get started with BineTime
+                </CardDescription>
+              </CardHeader>
           
-          <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
-            {/* League ID Input */}
-            <div className="space-y-2 sm:space-y-3">
-              <Label htmlFor="leagueId" className="text-sm sm:text-base font-medium">Sleeper League ID</Label>
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                <Input
-                  id="leagueId"
-                  value={leagueId}
-                  onChange={(e) => setLeagueId(e.target.value)}
-                  placeholder="Enter your Sleeper league ID"
-                  disabled={loading}
-                  className="flex-1 text-sm sm:text-base"
-                />
-                <Button
-                  onClick={fetchLeagueTeams}
-                  disabled={loading || !leagueId.trim()}
-                  className="w-full sm:w-auto whitespace-nowrap bg-hop-gold hover:bg-hop-gold/90 text-hop-brown font-semibold text-sm sm:text-base"
-                >
-                  {loading ? 'Loading...' : 'Fetch Teams'}
-                </Button>
-              </div>
-              <p className="text-muted-foreground text-xs sm:text-sm">
-                You can find your league ID in your Sleeper app URL or league settings.
-              </p>
-            </div>
+              <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
+                <LoadingAnnouncement isLoading={loading} message="Loading league data" />
+                <AnnouncementRegion priority="polite">
+                  {error && `Error: ${error}`}
+                  {leagueData && `League ${leagueData.league.name} loaded successfully with ${leagueData.teams.length} teams`}
+                  {joining && 'Joining league...'}
+                </AnnouncementRegion>
+                
+                {/* League ID Input */}
+                <fieldset className="space-y-2 sm:space-y-3">
+                  <legend className="sr-only">League Connection</legend>
+                  <Label htmlFor="leagueId" className="text-sm sm:text-base font-medium">Sleeper League ID</Label>
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                    <Input
+                      id="leagueId"
+                      value={leagueId}
+                      onChange={(e) => setLeagueId(e.target.value)}
+                      placeholder="Enter your Sleeper league ID"
+                      disabled={loading}
+                      className="flex-1 text-sm sm:text-base"
+                      aria-describedby="league-id-help"
+                      aria-required="true"
+                    />
+                    <Button
+                      onClick={fetchLeagueTeams}
+                      disabled={loading || !leagueId.trim()}
+                      className="w-full sm:w-auto whitespace-nowrap bg-hop-gold hover:bg-hop-gold/90 text-hop-brown font-semibold text-sm sm:text-base"
+                      aria-describedby="fetch-teams-description"
+                    >
+                      {loading ? 'Loading...' : 'Fetch Teams'}
+                    </Button>
+                  </div>
+                  <p id="league-id-help" className="text-muted-foreground text-xs sm:text-sm">
+                    You can find your league ID in your Sleeper app URL or league settings.
+                  </p>
+                  <div id="fetch-teams-description" className="sr-only">
+                    This will load all teams from your Sleeper league so you can select yours
+                  </div>
+                </fieldset>
 
             {error && (
               <Alert variant="destructive">
