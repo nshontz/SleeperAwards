@@ -4,26 +4,14 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { SignOutButton } from '@clerk/nextjs';
-
-interface User {
-  id: string;
-  email: string;
-  name: string | null;
-  teams: Array<{
-    id: string;
-    name: string;
-    sleeperRosterId: string | null;
-    leagueId: string;
-  }>;
-}
-
+import { useUser } from '@/hooks/useUser';
+import { FULL_MENU_ITEMS, LIMITED_MENU_ITEMS } from '@/constants/navigation';
 
 export function HamburgerMenu() {
   const [isOpen, setIsOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [userLoading, setUserLoading] = useState(true);
   const menuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const { user, loading: userLoading } = useUser();
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -42,37 +30,8 @@ export function HamburgerMenu() {
     setIsOpen(false);
   }, [pathname]);
 
-  // Fetch user data
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        const response = await fetch('/api/user');
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
-        }
-      } catch (error) {
-        console.error('Failed to fetch user:', error);
-      } finally {
-        setUserLoading(false);
-      }
-    }
-
-    fetchUser();
-  }, []);
-
   const hasTeams = user?.teams && user.teams.length > 0;
-
-  console.log(hasTeams)
-
-  const menuItems = hasTeams ? [
-    { href: '/', label: 'Home', icon: '🏠' },
-    { href: '/teams', label: 'Team Standings', icon: '📊' },
-    { href: '/awards', label: 'Awards', icon: '🏆' },
-    { href: '/join-league', label: 'Join League', icon: '➕' }
-  ] : [
-    { href: '/join-league', label: 'Join League', icon: '➕' }
-  ];
+  const menuItems = hasTeams ? FULL_MENU_ITEMS : LIMITED_MENU_ITEMS;
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);

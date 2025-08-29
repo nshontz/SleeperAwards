@@ -2,8 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
-
-type ThemeMode = 'light' | 'dark' | 'system';
+import { ThemeMode } from '@/types/common';
 
 export function ThemeToggle() {
   const { themeMode, actualTheme, setThemeMode } = useTheme();

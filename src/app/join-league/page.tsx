@@ -8,31 +8,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-
-interface SleeperTeam {
-  rosterId: number;
-  ownerId: string;
-  teamName: string;
-  username: string;
-  displayName: string | null;
-  avatar: string | null;
-  wins: number;
-  losses: number;
-  ties: number;
-  points: string;
-  pointsAgainst: string;
-}
-
-interface SleeperLeague {
-  id: string;
-  name: string;
-  season: string;
-  totalTeams: number;
-  status: string;
-}
+import { SleeperTeam, SleeperLeagueSimple } from '@/types/sleeper';
 
 interface LeagueData {
-  league: SleeperLeague;
+  league: SleeperLeagueSimple;
   teams: SleeperTeam[];
 }
 

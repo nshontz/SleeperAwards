@@ -11,7 +11,8 @@
       "Bash(psql:*)",
       "Bash(npx shadcn@latest add:*)",
       "Bash(npx prisma migrate dev:*)",
-      "Bash(npx prisma migrate reset:*)"
+      "Bash(npx prisma migrate reset:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": []
   }

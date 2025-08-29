@@ -1,8 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-
-type ThemeMode = 'light' | 'dark' | 'system';
+import { ThemeMode } from '@/types/common';
 type ActualTheme = 'light' | 'dark';
 
 interface ThemeContextType {

@@ -1,63 +1,46 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '../../../../generated/prisma';
 import { getAuthenticatedUser, ensureUserExists } from '../../../../lib/clerk-auth';
 import { currentUser } from '@clerk/nextjs/server';
+import { 
+  ApiError, 
+  handleApiError, 
+  createSuccessResponse, 
+  SleeperApi, 
+  validateRequired, 
+  withPrismaCleanup,
+  prisma 
+} from '../../../../lib/api-utils';
+import { LeagueJoinRequest } from '../../../../types/common';
+import { HTTP_STATUS } from '../../../../constants/api';
 
-const prisma = new PrismaClient();
-
-export async function POST(request: Request) {
-  try {
+export async function POST(request: Request): Promise<NextResponse> {
+  return withPrismaCleanup(async () => {
+    // Auth check
     const authResult = await getAuthenticatedUser();
     if (!authResult) {
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      );
+      throw new ApiError('Authentication required', HTTP_STATUS.UNAUTHORIZED);
     }
 
     const clerkUser = await currentUser();
-    if (!clerkUser || !clerkUser.primaryEmailAddress) {
-      return NextResponse.json(
-        { error: 'User email not found' },
-        { status: 400 }
-      );
+    if (!clerkUser?.primaryEmailAddress) {
+      throw new ApiError('User email not found', HTTP_STATUS.BAD_REQUEST);
     }
 
-    const body = await request.json();
+    // Validate request body
+    const body = await request.json() as LeagueJoinRequest;
+    validateRequired(body as unknown as Record<string, unknown>, ['sleeperLeagueId', 'sleeperRosterId', 'teamName']);
+
     const { sleeperLeagueId, sleeperRosterId, teamName, leagueName } = body;
 
-    if (!sleeperLeagueId || !sleeperRosterId || !teamName) {
-      return NextResponse.json(
-        { error: 'Missing required fields: sleeperLeagueId, sleeperRosterId, teamName' },
-        { status: 400 }
-      );
-    }
+    // Verify league and roster exist on Sleeper
+    const [sleeperLeague, rosters] = await Promise.all([
+      SleeperApi.fetchLeague(sleeperLeagueId),
+      SleeperApi.fetchRosters(sleeperLeagueId)
+    ]);
 
-    // Verify the league exists on Sleeper
-    const leagueResponse = await fetch(`https://api.sleeper.app/v1/league/${sleeperLeagueId}`);
-    if (!leagueResponse.ok) {
-      return NextResponse.json(
-        { error: 'League not found on Sleeper' },
-        { status: 404 }
-      );
-    }
-    const sleeperLeague = await leagueResponse.json();
-
-    // Verify the roster exists
-    const rostersResponse = await fetch(`https://api.sleeper.app/v1/league/${sleeperLeagueId}/rosters`);
-    if (!rostersResponse.ok) {
-      return NextResponse.json(
-        { error: 'Failed to verify roster' },
-        { status: 500 }
-      );
-    }
-    const rosters = await rostersResponse.json();
-    const roster = rosters.find((r: { roster_id: number }) => r.roster_id === parseInt(sleeperRosterId));
+    const roster = rosters.find((r: { roster_id: number }) => r.roster_id === sleeperRosterId);
     if (!roster) {
-      return NextResponse.json(
-        { error: 'Roster not found in league' },
-        { status: 404 }
-      );
+      throw new ApiError('Roster not found in league', HTTP_STATUS.NOT_FOUND);
     }
 
     // Get or create user in our database
@@ -66,7 +49,6 @@ export async function POST(request: Request) {
       user = await ensureUserExists(clerkUser.primaryEmailAddress.emailAddress);
     } catch (error: unknown) {
       if (error instanceof Error && error.message === 'ACCOUNT_NOT_FOUND') {
-        // Create the user since they don't exist yet
         user = await prisma.user.create({
           data: {
             email: clerkUser.primaryEmailAddress.emailAddress,
@@ -80,7 +62,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // Check if league exists in our database, create if not
+    // Get or create league in our database
     let league = await prisma.league.findUnique({
       where: { sleeperLeagueId },
     });
@@ -95,38 +77,32 @@ export async function POST(request: Request) {
       });
     }
 
-    // Check if user already has a team in this league
-    const existingTeam = await prisma.team.findUnique({
-      where: {
-        ownerId_leagueId: {
-          ownerId: user.id,
-          leagueId: league.id,
+    // Check for existing team or roster conflicts
+    const [existingTeam, existingRoster] = await Promise.all([
+      prisma.team.findUnique({
+        where: {
+          ownerId_leagueId: {
+            ownerId: user.id,
+            leagueId: league.id,
+          },
         },
-      },
-    });
+      }),
+      prisma.team.findUnique({
+        where: {
+          sleeperRosterId_leagueId: {
+            sleeperRosterId: sleeperRosterId.toString(),
+            leagueId: league.id,
+          },
+        },
+      })
+    ]);
 
     if (existingTeam) {
-      return NextResponse.json(
-        { error: 'You already have a team in this league' },
-        { status: 409 }
-      );
+      throw new ApiError('You already have a team in this league', HTTP_STATUS.CONFLICT);
     }
 
-    // Check if this roster is already claimed within this league
-    const existingRoster = await prisma.team.findUnique({
-      where: {
-        sleeperRosterId_leagueId: {
-          sleeperRosterId: sleeperRosterId.toString(),
-          leagueId: league.id,
-        },
-      },
-    });
-
     if (existingRoster) {
-      return NextResponse.json(
-        { error: 'This team is already claimed by another user' },
-        { status: 409 }
-      );
+      throw new ApiError('This team is already claimed by another user', HTTP_STATUS.CONFLICT);
     }
 
     // Create the team
@@ -143,8 +119,7 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json({
-      success: true,
+    return createSuccessResponse({
       team: {
         id: team.id,
         name: team.name,
@@ -157,13 +132,5 @@ export async function POST(request: Request) {
       },
     });
 
-  } catch (error) {
-    console.error('Error joining league:', error);
-    return NextResponse.json(
-      { error: 'Failed to join league' },
-      { status: 500 }
-    );
-  } finally {
-    await prisma.$disconnect();
-  }
+  }).catch(handleApiError);
 }

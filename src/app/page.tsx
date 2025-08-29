@@ -1,44 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-
-interface User {
-  id: string;
-  email: string;
-  name: string | null;
-  teams: Array<{
-    id: string;
-    name: string;
-    sleeperRosterId: string | null;
-    leagueId: string;
-  }>;
-}
+import { useUser } from '@/hooks/useUser';
+import { APP_SUBTITLE, APP_DESCRIPTION, MENU_ITEMS } from '@/constants/navigation';
 
 export default function Home() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        const response = await fetch('/api/user');
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
-        }
-      } catch (error) {
-        console.error('Failed to fetch user:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchUser();
-  }, []);
+  const { user, loading } = useUser();
 
   const hasTeams = user?.teams && user.teams.length > 0;
 
@@ -105,10 +75,10 @@ export default function Home() {
             🍺 Bine to Shrine Fantasy League 🍺
           </h1>
           <p className="text-2xl text-primary font-semibold mb-6">
-            Your hop-themed fantasy football hub
+            {APP_SUBTITLE}
           </p>
           <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
-            From the bine to the shrine - track awards, standings, and more
+            {APP_DESCRIPTION}
           </p>
         </div>
       </div>
@@ -118,10 +88,10 @@ export default function Home() {
         <div className="grid md:grid-cols-2 gap-8">
           {/* Awards Card */}
           <Card className="group hover:scale-105 transition-all duration-300 hover:shadow-xl backdrop-blur-md bg-card/95 border-2 hover:border-primary/50">
-            <Link href="/awards" className="block h-full">
+            <Link href={MENU_ITEMS.AWARDS.href} className="block h-full">
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl group-hover:text-primary transition-colors">
-                  🏆 Fantasy Awards
+                  {MENU_ITEMS.AWARDS.icon} Fantasy {MENU_ITEMS.AWARDS.label}
                 </CardTitle>
                 <CardDescription className="text-lg">
                   Hop-themed awards tracking the best and worst performances of the season
@@ -137,10 +107,10 @@ export default function Home() {
 
           {/* Team Standings Card */}
           <Card className="group hover:scale-105 transition-all duration-300 hover:shadow-xl backdrop-blur-md bg-card/95 border-2 hover:border-primary/50">
-            <Link href="/teams" className="block h-full">
+            <Link href={MENU_ITEMS.TEAMS.href} className="block h-full">
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl group-hover:text-primary transition-colors">
-                  📊 Team Standings
+                  {MENU_ITEMS.TEAMS.icon} {MENU_ITEMS.TEAMS.label}
                 </CardTitle>
                 <CardDescription className="text-lg">
                   Teams broken down by division with rankings, records, and top awards
