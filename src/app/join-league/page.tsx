@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { PageContainer, ResponsiveContainer } from '@/components/ui/responsive-container';
 import { SleeperTeam, SleeperLeagueSimple } from '@/types/sleeper';
 
 interface LeagueData {
@@ -91,38 +92,38 @@ export default function JoinLeaguePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/50 p-4">
-      <div className="container max-w-4xl mx-auto py-8">
-        <Card className="backdrop-blur-md bg-card/95 shadow-2xl">
-          <CardHeader className="text-center">
-            <CardTitle className="text-3xl font-bold">🍺 Join a League 🍺</CardTitle>
-            <CardDescription>
+    <PageContainer>
+      <ResponsiveContainer maxWidth="4xl" className="py-6 sm:py-8">
+        <Card className="backdrop-blur-md bg-card/95 shadow-xl sm:shadow-2xl">
+          <CardHeader className="text-center p-4 sm:p-6">
+            <CardTitle className="text-xl sm:text-2xl lg:text-3xl font-bold">🍺 Join a League 🍺</CardTitle>
+            <CardDescription className="text-sm sm:text-base">
               Connect your Sleeper league to get started with BineTime
             </CardDescription>
           </CardHeader>
           
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
             {/* League ID Input */}
-            <div className="space-y-2">
-              <Label htmlFor="leagueId">Sleeper League ID</Label>
-              <div className="flex gap-3">
+            <div className="space-y-2 sm:space-y-3">
+              <Label htmlFor="leagueId" className="text-sm sm:text-base font-medium">Sleeper League ID</Label>
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <Input
                   id="leagueId"
                   value={leagueId}
                   onChange={(e) => setLeagueId(e.target.value)}
-                  placeholder="Enter your Sleeper league ID (e.g., 1234567890123456789)"
+                  placeholder="Enter your Sleeper league ID"
                   disabled={loading}
-                  className="flex-1"
+                  className="flex-1 text-sm sm:text-base"
                 />
                 <Button
                   onClick={fetchLeagueTeams}
                   disabled={loading || !leagueId.trim()}
-                  className="bg-hop-gold hover:bg-hop-gold/90 text-hop-brown font-semibold"
+                  className="w-full sm:w-auto whitespace-nowrap bg-hop-gold hover:bg-hop-gold/90 text-hop-brown font-semibold text-sm sm:text-base"
                 >
                   {loading ? 'Loading...' : 'Fetch Teams'}
                 </Button>
               </div>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground text-xs sm:text-sm">
                 You can find your league ID in your Sleeper app URL or league settings.
               </p>
             </div>
@@ -134,11 +135,11 @@ export default function JoinLeaguePage() {
             )}
 
             {leagueData && (
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="text-2xl">{leagueData.league.name}</CardTitle>
-                    <CardDescription className="flex gap-4 text-sm">
+                  <CardHeader className="p-3 sm:p-6">
+                    <CardTitle className="text-lg sm:text-xl lg:text-2xl">{leagueData.league.name}</CardTitle>
+                    <CardDescription className="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm">
                       <Badge variant="secondary">Season: {leagueData.league.season}</Badge>
                       <Badge variant="secondary">Teams: {leagueData.league.totalTeams}</Badge>
                       <Badge variant={leagueData.league.status === 'in_season' ? 'default' : 'secondary'}>
@@ -149,8 +150,8 @@ export default function JoinLeaguePage() {
                 </Card>
 
                 <div>
-                  <h3 className="text-xl font-semibold mb-4">Select Your Team</h3>
-                  <div className="grid gap-3 max-h-96 overflow-y-auto">
+                  <h3 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Select Your Team</h3>
+                  <div className="grid gap-2 sm:gap-3 max-h-64 sm:max-h-96 overflow-y-auto">
                     {leagueData.teams.map((team) => (
                       <Card
                         key={team.rosterId}
@@ -161,30 +162,30 @@ export default function JoinLeaguePage() {
                             : 'hover:bg-accent/50'
                         }`}
                       >
-                        <CardContent className="p-4">
+                        <CardContent className="p-3 sm:p-4">
                           <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                              <h4 className="font-semibold text-lg mb-1">
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-semibold text-sm sm:text-base lg:text-lg mb-1 truncate">
                                 {team.teamName}
                               </h4>
-                              <p className="text-muted-foreground text-sm mb-2">
+                              <p className="text-muted-foreground text-xs sm:text-sm mb-2 truncate">
                                 Owner: {team.displayName || team.username}
                               </p>
-                              <div className="flex gap-4 text-sm">
-                                <Badge variant="outline">
-                                  Record: {team.wins}-{team.losses}{team.ties > 0 && `-${team.ties}`}
+                              <div className="flex flex-wrap gap-1 sm:gap-2 text-xs sm:text-sm">
+                                <Badge variant="outline" className="text-xs">
+                                  {team.wins}-{team.losses}{team.ties > 0 && `-${team.ties}`}
                                 </Badge>
-                                <Badge variant="outline">
-                                  Points: {team.points}
+                                <Badge variant="outline" className="text-xs">
+                                  {team.points} pts
                                 </Badge>
-                                <Badge variant="outline">
-                                  PA: {team.pointsAgainst}
+                                <Badge variant="outline" className="text-xs">
+                                  {team.pointsAgainst} PA
                                 </Badge>
                               </div>
                             </div>
                             {selectedTeam?.rosterId === team.rosterId && (
-                              <div className="text-hop-gold">
-                                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                              <div className="text-hop-gold flex-shrink-0 ml-2">
+                                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 20 20">
                                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                 </svg>
                               </div>
@@ -198,21 +199,20 @@ export default function JoinLeaguePage() {
 
                 {selectedTeam && (
                   <Card className="border-t">
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <h4 className="text-lg font-semibold">
+                    <CardContent className="p-3 sm:p-4 lg:p-6">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4">
+                        <div className="flex-1">
+                          <h4 className="text-base sm:text-lg font-semibold">
                             Selected: {selectedTeam.teamName}
                           </h4>
-                          <p className="text-muted-foreground">
+                          <p className="text-muted-foreground text-xs sm:text-sm">
                             This will be your team in {leagueData.league.name}
                           </p>
                         </div>
                         <Button
                           onClick={joinLeague}
                           disabled={joining}
-                          size="lg"
-                          className="bg-green-600 hover:bg-green-700 text-white font-semibold"
+                          className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-semibold text-sm sm:text-base"
                         >
                           {joining ? 'Joining...' : 'Join League'}
                         </Button>
@@ -224,7 +224,7 @@ export default function JoinLeaguePage() {
             )}
           </CardContent>
         </Card>
-      </div>
-    </div>
+      </ResponsiveContainer>
+    </PageContainer>
   );
 }

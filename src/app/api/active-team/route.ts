@@ -1,22 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { getAuthenticatedUser, ensureUserExists } from '../../../lib/kinde-auth';
+import { getAuthenticatedUser, ensureUserExists } from '../../../lib/clerk-auth';
+import { currentUser } from '@clerk/nextjs/server';
 
 export async function GET() {
   try {
-    const kindeUser = await getAuthenticatedUser();
-    if (!kindeUser) {
+    const clerkAuth = await getAuthenticatedUser();
+    if (!clerkAuth) {
       return NextResponse.json(
         { error: 'Not authenticated' },
         { status: 401 }
       );
     }
 
-    const user = await ensureUserExists({
-      email: kindeUser.email,
-      given_name: kindeUser.given_name,
-      family_name: kindeUser.family_name,
-    });
+    const clerkUser = await currentUser();
+    if (!clerkUser?.primaryEmailAddress) {
+      return NextResponse.json(
+        { error: 'User email not found' },
+        { status: 400 }
+      );
+    }
+
+    const user = await ensureUserExists(clerkUser.primaryEmailAddress.emailAddress);
 
     const cookieStore = await cookies();
     const activeTeamId = cookieStore.get('activeTeamId')?.value;
@@ -56,19 +61,23 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const kindeUser = await getAuthenticatedUser();
-    if (!kindeUser) {
+    const clerkAuth = await getAuthenticatedUser();
+    if (!clerkAuth) {
       return NextResponse.json(
         { error: 'Not authenticated' },
         { status: 401 }
       );
     }
 
-    const user = await ensureUserExists({
-      email: kindeUser.email,
-      given_name: kindeUser.given_name,
-      family_name: kindeUser.family_name,
-    });
+    const clerkUser = await currentUser();
+    if (!clerkUser?.primaryEmailAddress) {
+      return NextResponse.json(
+        { error: 'User email not found' },
+        { status: 400 }
+      );
+    }
+
+    const user = await ensureUserExists(clerkUser.primaryEmailAddress.emailAddress);
 
     const { teamId } = await request.json();
 

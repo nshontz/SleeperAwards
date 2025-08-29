@@ -12,7 +12,8 @@
       "Bash(npx shadcn@latest add:*)",
       "Bash(npx prisma migrate dev:*)",
       "Bash(npx prisma migrate reset:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }

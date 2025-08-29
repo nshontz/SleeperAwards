@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ChevronDownIcon, CheckIcon } from '@heroicons/react/24/outline';
+// Using inline SVG instead of heroicons to avoid dependency issues
 
 interface Team {
   id: string;
@@ -106,9 +106,14 @@ export function TeamSelector({ onTeamChange, className = '' }: TeamSelectorProps
               <p className="text-white/70 text-xs">{activeTeam.league.name}</p>
             </div>
           </div>
-          <ChevronDownIcon 
+          <svg 
             className={`w-5 h-5 text-white/70 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-          />
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
         </div>
       </button>
 
@@ -130,7 +135,9 @@ export function TeamSelector({ onTeamChange, className = '' }: TeamSelectorProps
                     <p className="text-gray-600 text-xs">{team.league.name}</p>
                   </div>
                   {activeTeam.id === team.id && (
-                    <CheckIcon className="w-4 h-4 text-hop-green" />
+                    <svg className="w-4 h-4 text-hop-green" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
                   )}
                 </div>
               </button>

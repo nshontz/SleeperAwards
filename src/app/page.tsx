@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PageContainer, ResponsiveContainer } from '@/components/ui/responsive-container';
 import { useUser } from '@/hooks/useUser';
 import { APP_SUBTITLE, APP_DESCRIPTION, MENU_ITEMS } from '@/constants/navigation';
 
@@ -14,45 +15,49 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-muted/50 p-4">
-        <div className="container max-w-4xl mx-auto py-16">
-          <Card className="backdrop-blur-md bg-card/95 shadow-2xl">
-            <CardHeader className="text-center">
-              <Skeleton className="h-12 w-3/4 mx-auto mb-4" />
-              <Skeleton className="h-6 w-1/2 mx-auto" />
+      <PageContainer>
+        <ResponsiveContainer maxWidth="4xl" className="py-8 sm:py-16">
+          <Card className="backdrop-blur-md bg-card/95 shadow-xl sm:shadow-2xl">
+            <CardHeader className="text-center p-4 sm:p-6">
+              <Skeleton className="h-8 sm:h-12 w-3/4 mx-auto mb-2 sm:mb-4" />
+              <Skeleton className="h-4 sm:h-6 w-1/2 mx-auto" />
             </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-2 gap-8">
-                <Skeleton className="h-48 w-full" />
-                <Skeleton className="h-48 w-full" />
+            <CardContent className="p-4 sm:p-6">
+              <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:gap-8">
+                <Skeleton className="h-32 sm:h-40 lg:h-48 w-full" />
+                <Skeleton className="h-32 sm:h-40 lg:h-48 w-full" />
               </div>
             </CardContent>
           </Card>
-        </div>
-      </div>
+        </ResponsiveContainer>
+      </PageContainer>
     );
   }
 
   if (!hasTeams) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-muted/50 p-4">
-        <div className="container max-w-4xl mx-auto py-16">
-          <Card className="backdrop-blur-md bg-card/95 shadow-2xl">
-            <CardHeader className="text-center">
-              <CardTitle className="text-5xl font-bold mb-4">
+      <PageContainer>
+        <ResponsiveContainer maxWidth="4xl" className="py-8 sm:py-16">
+          <Card className="backdrop-blur-md bg-card/95 shadow-xl sm:shadow-2xl">
+            <CardHeader className="text-center p-4 sm:p-6 lg:p-8">
+              <CardTitle className="text-2xl sm:text-3xl lg:text-5xl font-bold mb-2 sm:mb-4">
                 🍺 Welcome to BineTime 🍺
               </CardTitle>
-              <CardDescription className="text-xl">
+              <CardDescription className="text-base sm:text-lg lg:text-xl">
                 Your hop-themed fantasy football hub
               </CardDescription>
             </CardHeader>
-            <CardContent className="text-center">
-              <Card className="bg-muted/50 mb-8">
-                <CardContent className="p-8">
-                  <p className="text-lg mb-6">
+            <CardContent className="text-center p-4 sm:p-6 lg:p-8">
+              <Card className="bg-muted/50 mb-4 sm:mb-6 lg:mb-8">
+                <CardContent className="p-4 sm:p-6 lg:p-8">
+                  <p className="text-sm sm:text-base lg:text-lg mb-4 sm:mb-6">
                     Get started by joining a league with your Sleeper league ID
                   </p>
-                  <Button asChild size="lg" className="bg-hop-gold hover:bg-hop-gold/90 text-hop-brown font-semibold">
+                  <Button 
+                    asChild 
+                    size="default" 
+                    className="w-full sm:w-auto bg-hop-gold hover:bg-hop-gold/90 text-hop-brown font-semibold text-sm sm:text-base"
+                  >
                     <Link href="/join-league">
                       Join Your First League →
                     </Link>
@@ -61,44 +66,42 @@ export default function Home() {
               </Card>
             </CardContent>
           </Card>
-        </div>
-      </div>
+        </ResponsiveContainer>
+      </PageContainer>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/50">
+    <PageContainer>
       {/* Header */}
-      <div className="py-16 px-4">
-        <div className="container mx-auto text-center">
-          <h1 className="text-5xl font-bold mb-4">
+      <ResponsiveContainer maxWidth="4xl" className="py-8 sm:py-12 lg:py-16">
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold mb-2 sm:mb-4">
             🍺 Bine to Shrine Fantasy League 🍺
           </h1>
-          <p className="text-2xl text-primary font-semibold mb-6">
+          <p className="text-lg sm:text-xl lg:text-2xl text-primary font-semibold mb-3 sm:mb-6">
             {APP_SUBTITLE}
           </p>
-          <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto">
             {APP_DESCRIPTION}
           </p>
         </div>
-      </div>
 
-      {/* Navigation Cards */}
-      <div className="container max-w-4xl mx-auto px-4 pb-16">
-        <div className="grid md:grid-cols-2 gap-8">
+        {/* Navigation Cards */}
+        <div className="grid gap-4 sm:gap-6 lg:gap-8 md:grid-cols-2">
           {/* Awards Card */}
-          <Card className="group hover:scale-105 transition-all duration-300 hover:shadow-xl backdrop-blur-md bg-card/95 border-2 hover:border-primary/50">
+          <Card className="group hover:scale-[1.02] sm:hover:scale-105 transition-all duration-300 hover:shadow-lg sm:hover:shadow-xl backdrop-blur-md bg-card/95 border-2 hover:border-primary/50">
             <Link href={MENU_ITEMS.AWARDS.href} className="block h-full">
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl group-hover:text-primary transition-colors">
+              <CardHeader className="text-center p-4 sm:p-6">
+                <CardTitle className="text-lg sm:text-xl lg:text-2xl group-hover:text-primary transition-colors">
                   {MENU_ITEMS.AWARDS.icon} Fantasy {MENU_ITEMS.AWARDS.label}
                 </CardTitle>
-                <CardDescription className="text-lg">
+                <CardDescription className="text-sm sm:text-base lg:text-lg">
                   Hop-themed awards tracking the best and worst performances of the season
                 </CardDescription>
               </CardHeader>
-              <CardContent className="text-center">
-                <Button className="bg-hop-gold hover:bg-hop-gold/90 text-hop-brown font-semibold">
+              <CardContent className="text-center p-4 sm:p-6">
+                <Button className="w-full sm:w-auto bg-hop-gold hover:bg-hop-gold/90 text-hop-brown font-semibold text-sm sm:text-base">
                   View Awards →
                 </Button>
               </CardContent>
@@ -106,25 +109,25 @@ export default function Home() {
           </Card>
 
           {/* Team Standings Card */}
-          <Card className="group hover:scale-105 transition-all duration-300 hover:shadow-xl backdrop-blur-md bg-card/95 border-2 hover:border-primary/50">
+          <Card className="group hover:scale-[1.02] sm:hover:scale-105 transition-all duration-300 hover:shadow-lg sm:hover:shadow-xl backdrop-blur-md bg-card/95 border-2 hover:border-primary/50">
             <Link href={MENU_ITEMS.TEAMS.href} className="block h-full">
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl group-hover:text-primary transition-colors">
+              <CardHeader className="text-center p-4 sm:p-6">
+                <CardTitle className="text-lg sm:text-xl lg:text-2xl group-hover:text-primary transition-colors">
                   {MENU_ITEMS.TEAMS.icon} {MENU_ITEMS.TEAMS.label}
                 </CardTitle>
-                <CardDescription className="text-lg">
+                <CardDescription className="text-sm sm:text-base lg:text-lg">
                   Teams broken down by division with rankings, records, and top awards
                 </CardDescription>
               </CardHeader>
-              <CardContent className="text-center">
-                <Button className="bg-hop-gold hover:bg-hop-gold/90 text-hop-brown font-semibold">
+              <CardContent className="text-center p-4 sm:p-6">
+                <Button className="w-full sm:w-auto bg-hop-gold hover:bg-hop-gold/90 text-hop-brown font-semibold text-sm sm:text-base">
                   View Standings →
                 </Button>
               </CardContent>
             </Link>
           </Card>
         </div>
-      </div>
-    </div>
+      </ResponsiveContainer>
+    </PageContainer>
   );
 }
