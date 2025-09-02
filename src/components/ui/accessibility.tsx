@@ -83,7 +83,7 @@ export function useFocusTrap(isActive: boolean) {
     }
 
     function handleEscapeKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && container) {
         // Close modal/dropdown
         const closeButton = container.querySelector('[data-close]') as HTMLElement;
         if (closeButton) closeButton.click();
