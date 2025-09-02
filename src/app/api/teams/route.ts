@@ -1,21 +1,26 @@
 import { NextResponse } from 'next/server';
-import { getAuthenticatedUser, ensureUserExists, getUserTeams } from '../../../lib/kinde-auth';
+import { getAuthenticatedUser, ensureUserExists, getUserTeams } from '../../../lib/clerk-auth';
+import { currentUser } from '@clerk/nextjs/server';
 
 export async function GET() {
   try {
-    const kindeUser = await getAuthenticatedUser();
-    if (!kindeUser) {
+    const authResult = await getAuthenticatedUser();
+    if (!authResult) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
       );
     }
 
-    const user = await ensureUserExists({
-      email: kindeUser.email,
-      given_name: kindeUser.given_name,
-      family_name: kindeUser.family_name,
-    });
+    const clerkUser = await currentUser();
+    if (!clerkUser || !clerkUser.primaryEmailAddress) {
+      return NextResponse.json(
+        { error: 'User email not found' },
+        { status: 400 }
+      );
+    }
+
+    const user = await ensureUserExists(clerkUser.primaryEmailAddress.emailAddress);
     const teams = await getUserTeams(user.id);
     
     return NextResponse.json({ teams });

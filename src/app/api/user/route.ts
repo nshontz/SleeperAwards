@@ -1,21 +1,26 @@
 import { NextResponse } from 'next/server';
-import { getAuthenticatedUser, ensureUserExists } from '../../../lib/kinde-auth';
+import { getAuthenticatedUser, ensureUserExists } from '../../../lib/clerk-auth';
+import { currentUser } from '@clerk/nextjs/server';
 
 export async function GET() {
   try {
-    const kindeUser = await getAuthenticatedUser();
-    if (!kindeUser) {
+    const authResult = await getAuthenticatedUser();
+    if (!authResult) {
       return NextResponse.json(
         { error: 'Not authenticated' },
         { status: 401 }
       );
     }
 
-    const user = await ensureUserExists({
-      email: kindeUser.email,
-      given_name: kindeUser.given_name,
-      family_name: kindeUser.family_name,
-    });
+    const clerkUser = await currentUser();
+    if (!clerkUser || !clerkUser.primaryEmailAddress) {
+      return NextResponse.json(
+        { error: 'User email not found' },
+        { status: 400 }
+      );
+    }
+
+    const user = await ensureUserExists(clerkUser.primaryEmailAddress.emailAddress);
     
     return NextResponse.json({ 
       user: {
@@ -27,6 +32,10 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Error fetching user:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace'
+    });
     
     if (error instanceof Error && error.message === 'ACCOUNT_NOT_FOUND') {
       return NextResponse.json(

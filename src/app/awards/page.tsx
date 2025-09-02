@@ -1,18 +1,19 @@
 'use client';
 
 import React, {useEffect, useState} from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {SleeperAPI} from '@/lib/sleeper-api';
 import {AwardsCalculator} from '@/lib/awards-calculator';
 import {AwardCard} from '@/components/AwardCard';
 import {AwardModal} from '@/components/AwardModal';
 import {Award} from '@/types/sleeper';
-import {getDefaultSleeperLeagueId} from '@/lib/default-data';
 
 const CACHE_DURATION = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
 const CACHE_KEY = 'sleeper_awards_cache';
 
 export default function AwardsPage() {
+  const router = useRouter();
   const [awards, setAwards] = useState<Award[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,6 +28,9 @@ export default function AwardsPage() {
       name: string;
       sleeperRosterId: string | null;
       leagueId: string;
+      league: {
+        sleeperLeagueId: string;
+      };
     }>;
   } | null>(null);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -49,6 +53,12 @@ export default function AwardsPage() {
         }
         const data = await response.json();
         setUser(data.user);
+        
+        // Redirect if user has no teams
+        if (!data.user.teams || data.user.teams.length === 0) {
+          router.push('/join-league');
+          return;
+        }
       } catch (error) {
         console.error('User fetch failed:', error);
         setAuthError('Failed to load user data. Please try again.');
@@ -56,15 +66,17 @@ export default function AwardsPage() {
       }
     }
     fetchUser();
-  }, []);
+  }, [router]);
 
   useEffect(() => {
-    if (user) {
+    if (user && user.teams && user.teams.length > 0) {
       loadAwards();
     }
   }, [user]);
 
   const loadAwards = async () => {
+    if (!user || !user.teams || user.teams.length === 0) return;
+    
     try {
       setLoading(true);
 
@@ -82,8 +94,13 @@ export default function AwardsPage() {
         }
       }
       
-      // Get league ID from database
-      const leagueId = await getDefaultSleeperLeagueId();
+      // Use the first team's league
+      if (!user?.teams?.[0]?.league?.sleeperLeagueId) {
+        setError('No league found for user teams');
+        setLoading(false);
+        return;
+      }
+      const leagueId = user.teams[0].league.sleeperLeagueId;
       const api = new SleeperAPI(leagueId);
 
       const [league, rosters, users, allMatchups] = await Promise.all([

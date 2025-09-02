@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { SleeperAPI } from '@/lib/sleeper-api';
 import { AwardsCalculator } from '@/lib/awards-calculator';
 import { SleeperRoster, Award } from '@/types/sleeper';
-import { getDefaultSleeperLeagueId } from '@/lib/default-data';
 
 interface TeamWithStats extends SleeperRoster {
   teamName: string;
@@ -22,6 +22,7 @@ interface Division {
 }
 
 export default function TeamsPage() {
+  const router = useRouter();
   const [divisions, setDivisions] = useState<Division[]>([]);
   const [awards, setAwards] = useState<Award[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,6 +36,9 @@ export default function TeamsPage() {
       name: string;
       sleeperRosterId: string | null;
       leagueId: string;
+      league: {
+        sleeperLeagueId: string;
+      };
     }>;
   } | null>(null);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -57,6 +61,12 @@ export default function TeamsPage() {
         }
         const data = await response.json();
         setUser(data.user);
+        
+        // Redirect if user has no teams
+        if (!data.user.teams || data.user.teams.length === 0) {
+          router.push('/join-league');
+          return;
+        }
       } catch (error) {
         console.error('User fetch failed:', error);
         setAuthError('Failed to load user data. Please try again.');
@@ -64,14 +74,20 @@ export default function TeamsPage() {
       }
     }
     fetchUser();
-  }, []);
+  }, [router]);
 
   useEffect(() => {
-    if (!user) return; // Wait for authentication
+    if (!user || !user.teams || user.teams.length === 0) return; // Wait for authentication and teams
 
     async function fetchData() {
       try {
-        const leagueId = await getDefaultSleeperLeagueId();
+        // Use the first team's league (users should have at least one team by now)
+        if (!user?.teams?.[0]?.league?.sleeperLeagueId) {
+          setError('No league found for user teams');
+          setLoading(false);
+          return;
+        }
+        const leagueId = user.teams[0].league.sleeperLeagueId;
         const sleeperApi = new SleeperAPI(leagueId);
 
         // Fetch league data

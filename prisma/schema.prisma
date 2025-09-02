@@ -21,14 +21,14 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  // User owns teams
-  teams     Team[]
+  // Relationships
+  teams     Team[]   // User owns teams
 }
 
 model Team {
   id              String   @id @default(cuid())
   name            String
-  sleeperRosterId String?  @unique // Link to Sleeper roster
+  sleeperRosterId String?  // Link to Sleeper roster
   ownerId         String   // User who owns this team
   leagueId        String   // League this team belongs to
   createdAt       DateTime @default(now())
@@ -39,6 +39,7 @@ model Team {
   league  League @relation(fields: [leagueId], references: [id], onDelete: Cascade)
   
   @@unique([ownerId, leagueId]) // User can only have one team per league
+  @@unique([sleeperRosterId, leagueId]) // Roster can only be claimed once per league
 }
 
 model League {
@@ -49,6 +50,6 @@ model League {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   
-  // League contains teams
-  teams           Team[]
+  // Relationships
+  teams           Team[]   // League contains teams
 }
