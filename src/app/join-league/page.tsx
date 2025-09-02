@@ -244,7 +244,9 @@ export default function JoinLeaguePage() {
             )}
           </CardContent>
         </Card>
-      </ResponsiveContainer>
-    </PageContainer>
+          </main>
+        </ResponsiveContainer>
+      </PageContainer>
+    </>
   );
 }
