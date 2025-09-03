@@ -15,6 +15,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
   const [actualTheme, setActualTheme] = useState<ActualTheme>('dark');
+  const [mounted, setMounted] = useState(false);
 
   // Function to get system preference
   const getSystemTheme = (): ActualTheme => {
@@ -34,6 +35,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   // Initialize theme on mount
   useEffect(() => {
+    setMounted(true);
     const savedMode = localStorage.getItem('themeMode') as ThemeMode;
     const initialMode = savedMode || 'system';
     
@@ -63,17 +65,20 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   // Apply actual theme to document
   useEffect(() => {
+    if (!mounted) return;
+    
     if (actualTheme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
-  }, [actualTheme]);
+  }, [actualTheme, mounted]);
 
   // Save theme mode preference
   useEffect(() => {
+    if (!mounted) return;
     localStorage.setItem('themeMode', themeMode);
-  }, [themeMode]);
+  }, [themeMode, mounted]);
 
   const setThemeMode = (mode: ThemeMode) => {
     setThemeModeState(mode);
