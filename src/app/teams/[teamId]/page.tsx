@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { SleeperAPI } from '@/lib/sleeper-api';
-import { SleeperRoster, SleeperUser, SleeperMatchup, SleeperPlayer, TrendingPlayer } from '@/types/sleeper';
+import { SleeperRoster, SleeperUser, SleeperMatchup, SleeperPlayer } from '@/types/sleeper';
 import { getDefaultSleeperLeagueId } from '@/lib/default-data';
 
 interface TeamPageProps {
@@ -12,24 +12,12 @@ interface TeamPageProps {
   }>;
 }
 
-interface PlayerRecommendation {
-  playerId: string;
-  playerName: string;
-  position: string;
-  team: string;
-  recommendation: 'start' | 'sit' | 'pickup';
-  reason: string;
-  priority: 'high' | 'medium' | 'low';
-  projectedPoints?: number;
-}
 
 interface TeamData {
   roster: SleeperRoster;
   user: SleeperUser;
   teamName: string;
   recentMatchups: SleeperMatchup[];
-  startRecommendations: PlayerRecommendation[];
-  pickupRecommendations: PlayerRecommendation[];
   rosterPlayers: SleeperPlayer[];
 }
 
@@ -50,13 +38,12 @@ export default function TeamPage({ params }: TeamPageProps) {
         const sleeperApi = new SleeperAPI(leagueId);
 
         // Fetch basic data
-        const [, rosters, users, allMatchups, allPlayers, trendingPlayers] = await Promise.all([
+        const [, rosters, users, allMatchups, allPlayers] = await Promise.all([
           sleeperApi.getLeague(),
           sleeperApi.getRosters(),
           sleeperApi.getUsers(),
           sleeperApi.getAllMatchups(),
-          sleeperApi.getAllPlayers(),
-          sleeperApi.getTrendingPlayers('add', 24)
+          sleeperApi.getAllPlayers()
         ]);
 
         // Find the specific team
@@ -94,17 +81,12 @@ export default function TeamPage({ params }: TeamPageProps) {
             age: player.age
           }));
 
-        // Generate recommendations using real data
-        const startRecommendations = generateStartSitRecommendations(roster, recentMatchups, rosterPlayers, allMatchups);
-        const pickupRecommendations = generatePickupRecommendations(roster, rosters, trendingPlayers, allPlayers);
 
         setTeamData({
           roster,
           user: user!,
           teamName,
           recentMatchups,
-          startRecommendations,
-          pickupRecommendations,
           rosterPlayers
         });
 
@@ -119,173 +101,8 @@ export default function TeamPage({ params }: TeamPageProps) {
     fetchTeamData();
   }, [teamId]);
 
-  // Enhanced recommendation engine using real roster data
-  function generateStartSitRecommendations(
-    roster: SleeperRoster, 
-    matchups: SleeperMatchup[], 
-    rosterPlayers: SleeperPlayer[],
-    allMatchups: SleeperMatchup[][]
-  ): PlayerRecommendation[] {
-    const recommendations: PlayerRecommendation[] = [];
-    
-    // Calculate player performance from recent matchups
-    const teamMatchups = allMatchups.flat().filter(m => m.roster_id === roster.roster_id);
-    
-    // Get starters and bench players
-    const starters = (roster.starters || [])
-      .map(playerId => rosterPlayers.find(p => p.player_id === playerId))
-      .filter((player): player is SleeperPlayer => Boolean(player));
-      
-    const benchPlayers = rosterPlayers.filter(player => 
-      !roster.starters?.includes(player.player_id)
-    );
 
-    // Analyze starters for start/sit recommendations
-    starters.forEach(player => {
-      const avgPoints = calculatePlayerAverage(player.player_id, teamMatchups);
-      const recentForm = getRecentForm(player.player_id, teamMatchups.slice(-3));
-      const isInjured = player.injury_status && player.injury_status !== 'Healthy';
-      
-      if (isInjured) {
-        recommendations.push({
-          playerId: player.player_id,
-          playerName: player.full_name,
-          position: player.position,
-          team: player.team,
-          recommendation: 'sit',
-          reason: `Injury concern: ${player.injury_status}. Monitor status before game time.`,
-          priority: 'high',
-          projectedPoints: avgPoints * 0.5
-        });
-      } else if (avgPoints > 12 && recentForm > avgPoints * 0.8) {
-        recommendations.push({
-          playerId: player.player_id,
-          playerName: player.full_name,
-          position: player.position,
-          team: player.team,
-          recommendation: 'start',
-          reason: `Strong performer with ${avgPoints?.toFixed(1)} avg points. Good recent form.`,
-          priority: 'high',
-          projectedPoints: avgPoints + (recentForm - avgPoints) * 0.3
-        });
-      } else if (avgPoints < 8 || recentForm < avgPoints * 0.6) {
-        recommendations.push({
-          playerId: player.player_id,
-          playerName: player.full_name,
-          position: player.position,
-          team: player.team,
-          recommendation: 'sit',
-          reason: `Inconsistent performance (${avgPoints?.toFixed(1)} avg). Consider bench options.`,
-          priority: 'medium',
-          projectedPoints: Math.max(avgPoints * 0.8, recentForm)
-        });
-      }
-    });
 
-    // Analyze top bench players for potential starts
-    benchPlayers
-      .filter(player => ['QB', 'RB', 'WR', 'TE'].includes(player.position))
-      .slice(0, 3)
-      .forEach(player => {
-        const avgPoints = calculatePlayerAverage(player.player_id, teamMatchups);
-        if (avgPoints > 8) {
-          recommendations.push({
-            playerId: player.player_id,
-            playerName: player.full_name,
-            position: player.position,
-            team: player.team,
-            recommendation: 'start',
-            reason: `Solid bench option with ${avgPoints?.toFixed(1)} avg points. Consider over struggling starters.`,
-            priority: 'medium',
-            projectedPoints: avgPoints
-          });
-        }
-      });
-
-    return recommendations.slice(0, 8); // Limit recommendations
-  }
-
-  // Helper functions for player analysis
-  function calculatePlayerAverage(playerId: string, matchups: SleeperMatchup[]): number {
-    const playerPoints = matchups
-      .map(m => m.players_points?.[playerId] || 0)
-      .filter(points => points > 0);
-    
-    return playerPoints.length > 0 
-      ? playerPoints.reduce((sum, points) => sum + points, 0) / playerPoints.length 
-      : 0;
-  }
-
-  function getRecentForm(playerId: string, recentMatchups: SleeperMatchup[]): number {
-    const recentPoints = recentMatchups
-      .map(m => m.players_points?.[playerId] || 0)
-      .filter(points => points > 0);
-    
-    return recentPoints.length > 0
-      ? recentPoints.reduce((sum, points) => sum + points, 0) / recentPoints.length
-      : 0;
-  }
-
-  // Enhanced pickup recommendations using trending players
-  function generatePickupRecommendations(
-    roster: SleeperRoster, 
-    allRosters: SleeperRoster[], 
-    trendingPlayers: TrendingPlayer[],
-    allPlayers: Record<string, SleeperPlayer>
-  ): PlayerRecommendation[] {
-    const recommendations: PlayerRecommendation[] = [];
-    
-    // Get all rostered players across the league
-    const rosteredPlayerIds = new Set(
-      allRosters.flatMap(r => [...(r.players || []), ...(r.starters || [])])
-    );
-
-    // Filter trending players that are available (not rostered)
-    const availableTrendingPlayers = trendingPlayers
-      .filter(tp => !rosteredPlayerIds.has(tp.player_id))
-      .slice(0, 10)
-      .map(tp => ({
-        ...tp,
-        player: allPlayers[tp.player_id]
-      }))
-      .filter(tp => tp.player && ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'].includes(tp.player.position));
-
-    // Analyze team needs based on current roster
-    const positionCounts = (roster.players || [])
-      .map(playerId => allPlayers[playerId]?.position)
-      .filter(Boolean)
-      .reduce((counts, pos) => {
-        counts[pos] = (counts[pos] || 0) + 1;
-        return counts;
-      }, {} as Record<string, number>);
-
-    availableTrendingPlayers.forEach((trendingPlayer, index) => {
-      const player = trendingPlayer.player;
-      const isPositionNeeded = (positionCounts[player.position] || 0) < 3;
-      
-      let reason = `Trending pickup (${trendingPlayer.count} adds). `;
-      if (player.injury_status && player.injury_status !== 'Healthy') {
-        reason += `Monitor injury: ${player.injury_status}.`;
-      } else if (isPositionNeeded) {
-        reason += `Addresses ${player.position} depth need.`;
-      } else {
-        reason += `Popular waiver target with upside potential.`;
-      }
-
-      recommendations.push({
-        playerId: player.player_id,
-        playerName: player.full_name || `${player.first_name} ${player.last_name}`,
-        position: player.position,
-        team: player.team || 'FA',
-        recommendation: 'pickup',
-        reason,
-        priority: index < 3 ? 'high' : index < 6 ? 'medium' : 'low',
-        projectedPoints: 6 + Math.random() * 10 + (isPositionNeeded ? 2 : 0)
-      });
-    });
-
-    return recommendations.slice(0, 6);
-  }
 
   if (loading) {
     return (
@@ -360,63 +177,6 @@ export default function TeamPage({ params }: TeamPageProps) {
           </div>
         </div>
 
-        {/* Start/Sit Recommendations */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-white mb-6 text-center">🎮 Start/Sit Recommendations</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Start Recommendations */}
-            <div className="theme-card p-6">
-              <h3 className="text-xl font-bold text-hop-gold mb-4">✅ Recommended Starts</h3>
-              <div className="space-y-4">
-                {teamData.startRecommendations.filter(r => r.recommendation === 'start').map((rec, idx) => (
-                  <div key={idx} className="bg-green-900/30 border border-green-600 rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h4 className="font-bold text-white">{rec.playerName}</h4>
-                        <p className="text-sm text-gray-300">{rec.position} - {rec.team}</p>
-                      </div>
-                      <span className="bg-green-600 text-white px-2 py-1 rounded text-xs font-bold">
-                        {rec.priority.toUpperCase()}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-300 mb-2">{rec.reason}</p>
-                    {rec.projectedPoints && (
-                      <p className="text-hop-gold text-sm font-semibold">
-                        Projected: {rec.projectedPoints?.toFixed(1)} pts
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Sit Recommendations */}
-            <div className="theme-card p-6">
-              <h3 className="text-xl font-bold text-hop-gold mb-4">⚠️ Consider Sitting</h3>
-              <div className="space-y-4">
-                {teamData.startRecommendations.filter(r => r.recommendation === 'sit').map((rec, idx) => (
-                  <div key={idx} className="bg-yellow-900/30 border border-yellow-600 rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h4 className="font-bold text-white">{rec.playerName}</h4>
-                        <p className="text-sm text-gray-300">{rec.position} - {rec.team}</p>
-                      </div>
-                      <span className="bg-yellow-600 text-white px-2 py-1 rounded text-xs font-bold">
-                        {rec.priority.toUpperCase()}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-300 mb-2">{rec.reason}</p>
-                    {rec.projectedPoints && (
-                      <p className="text-hop-gold text-sm font-semibold">
-                        Projected: {rec.projectedPoints?.toFixed(1)} pts
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Current Roster */}
         <div className="mb-8">
@@ -425,6 +185,20 @@ export default function TeamPage({ params }: TeamPageProps) {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {teamData.rosterPlayers
                 .sort((a, b) => {
+                  const isStarterA = teamData.roster.starters?.includes(a.player_id);
+                  const isStarterB = teamData.roster.starters?.includes(b.player_id);
+                  
+                  // Starters first
+                  if (isStarterA && !isStarterB) return -1;
+                  if (!isStarterA && isStarterB) return 1;
+                  
+                  // Within starters, sort by position order
+                  if (isStarterA && isStarterB) {
+                    const starterPositions = ['QB', 'WR', 'RB', 'TE', 'K', 'DEF'];
+                    return starterPositions.indexOf(a.position) - starterPositions.indexOf(b.position);
+                  }
+                  
+                  // Within bench, sort by position order
                   const positions = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
                   return positions.indexOf(a.position) - positions.indexOf(b.position);
                 })
@@ -447,7 +221,10 @@ export default function TeamPage({ params }: TeamPageProps) {
                     <p className="text-red-400 text-xs">⚠️ {player.injury_status}</p>
                   )}
                   <div className="text-xs text-gray-400 mt-1">
-                    {player.years_exp ? `${player.years_exp} years exp` : 'Rookie'} • Age {player.age || 'N/A'}
+                    {player.position === 'DEF' 
+                      ? `Team Defense` 
+                      : `${player.years_exp ? `${player.years_exp} years exp` : 'Rookie'} • Age ${player.age || 'N/A'}`
+                    }
                   </div>
                 </div>
               ))}
@@ -455,44 +232,7 @@ export default function TeamPage({ params }: TeamPageProps) {
           </div>
         </div>
 
-        {/* Pickup Recommendations */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-white mb-6 text-center">🔍 Waiver Wire Targets</h2>
-          <div className="theme-card p-6">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {teamData.pickupRecommendations.map((rec, idx) => (
-                <div key={idx} className="bg-blue-900/30 border border-blue-600 rounded-lg p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h4 className="font-bold text-white">{rec.playerName}</h4>
-                      <p className="text-sm text-gray-300">{rec.position} - {rec.team}</p>
-                    </div>
-                    <span className={`px-2 py-1 rounded text-xs font-bold text-white ${
-                      rec.priority === 'high' ? 'bg-red-600' :
-                      rec.priority === 'medium' ? 'bg-orange-600' : 'bg-gray-600'
-                    }`}>
-                      {rec.priority.toUpperCase()}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-300 mb-2">{rec.reason}</p>
-                  {rec.projectedPoints && (
-                    <p className="text-hop-gold text-sm font-semibold">
-                      Projected: {rec.projectedPoints?.toFixed(1)} pts
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
 
-        {/* Disclaimer */}
-        <div className="text-center">
-          <p className="text-sm text-gray-400">
-            * Recommendations are generated based on recent performance and league trends. 
-            Always consider injury reports and matchup analysis before making final decisions.
-          </p>
-        </div>
       </div>
     </div>
   );
