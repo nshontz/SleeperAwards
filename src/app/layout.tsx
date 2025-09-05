@@ -22,11 +22,15 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className={inter.className}>
-          <ThemeProvider>
-            <HamburgerMenu />
-            <ThemeToggle />
-            {children}
-          </ThemeProvider>
+        <ThemeProvider>
+          <HamburgerMenu/>
+          <ThemeToggle/>
+          <div className="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 items-center gap-2">
+              {children}
+            </div>
+          </div>
+        </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>

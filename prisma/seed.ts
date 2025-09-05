@@ -2,6 +2,7 @@ import { PrismaClient } from '../src/generated/prisma';
 import { seedLeagues } from './seeders/leagues';
 import { seedUsers } from './seeders/users';
 import { seedTeams } from './seeders/teams';
+import { seedAwardTypes } from './seeders/award-types';
 
 const prisma = new PrismaClient();
 
@@ -9,7 +10,8 @@ async function main() {
   console.log('🌱 Starting database seeding...\n');
 
   try {
-    // Seed in order: leagues → users → teams
+    // Seed in order: award types → leagues → users → teams
+    await seedAwardTypes();
     await seedLeagues();
     await seedUsers();
     await seedTeams();

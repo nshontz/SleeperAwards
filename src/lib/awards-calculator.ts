@@ -1,16 +1,23 @@
 import { SleeperRoster, SleeperUser, SleeperMatchup, Award } from '@/types/sleeper';
-import awardsConfig from '@/data/awards.json';
+import { AwardConfig } from './awards-service';
 
 export class AwardsCalculator {
   private rosters: SleeperRoster[];
   private users: SleeperUser[];
   private allMatchups: SleeperMatchup[][];
   private teamNames: Map<number, string>;
+  private awardConfigs: Record<string, AwardConfig>;
 
-  constructor(rosters: SleeperRoster[], users: SleeperUser[], allMatchups: SleeperMatchup[][]) {
+  constructor(
+    rosters: SleeperRoster[], 
+    users: SleeperUser[], 
+    allMatchups: SleeperMatchup[][],
+    awardConfigs: Record<string, AwardConfig>
+  ) {
     this.rosters = rosters;
     this.users = users;
     this.allMatchups = allMatchups;
+    this.awardConfigs = awardConfigs;
     this.teamNames = this.createTeamNameMap();
   }
 
@@ -72,10 +79,10 @@ export class AwardsCalculator {
       .map((team, index) => ({ ...team, rank: index + 1 }));
 
     return {
-      id: awardsConfig.fewestPointsAgainst.id,
-      name: awardsConfig.fewestPointsAgainst.name,
-      description: awardsConfig.fewestPointsAgainst.description,
-      icon: awardsConfig.fewestPointsAgainst.icon,
+      id: this.awardConfigs.fewestPointsAgainst.id,
+      name: this.awardConfigs.fewestPointsAgainst.name,
+      description: this.awardConfigs.fewestPointsAgainst.description,
+      icon: this.awardConfigs.fewestPointsAgainst.icon,
       winner: leaderboard.length > 0 ? leaderboard[0] : undefined,
       leaderboard
     };
@@ -99,10 +106,10 @@ export class AwardsCalculator {
       .map((team, index) => ({ ...team, rank: index + 1 }));
 
     return {
-      id: awardsConfig.mostPointsAgainst.id,
-      name: awardsConfig.mostPointsAgainst.name,
-      description: awardsConfig.mostPointsAgainst.description,
-      icon: awardsConfig.mostPointsAgainst.icon,
+      id: this.awardConfigs.mostPointsAgainst.id,
+      name: this.awardConfigs.mostPointsAgainst.name,
+      description: this.awardConfigs.mostPointsAgainst.description,
+      icon: this.awardConfigs.mostPointsAgainst.icon,
       winner: leaderboard.length > 0 ? leaderboard[0] : undefined,
       leaderboard
     };
@@ -121,10 +128,10 @@ export class AwardsCalculator {
       .map((team, index) => ({ ...team, rank: index + 1 }));
 
     return {
-      id: awardsConfig.mostPredictable.id,
-      name: awardsConfig.mostPredictable.name,
-      description: awardsConfig.mostPredictable.description,
-      icon: awardsConfig.mostPredictable.icon,
+      id: this.awardConfigs.mostPredictable.id,
+      name: this.awardConfigs.mostPredictable.name,
+      description: this.awardConfigs.mostPredictable.description,
+      icon: this.awardConfigs.mostPredictable.icon,
       winner: leaderboard.length > 0 ? leaderboard[0] : undefined,
       leaderboard
     };
@@ -154,10 +161,10 @@ export class AwardsCalculator {
       .map((team, index) => ({ ...team, rank: index + 1 }));
 
     return {
-      id: awardsConfig.mostConsistent.id,
-      name: awardsConfig.mostConsistent.name,
-      description: awardsConfig.mostConsistent.description,
-      icon: awardsConfig.mostConsistent.icon,
+      id: this.awardConfigs.mostConsistent.id,
+      name: this.awardConfigs.mostConsistent.name,
+      description: this.awardConfigs.mostConsistent.description,
+      icon: this.awardConfigs.mostConsistent.icon,
       winner: leaderboard.length > 0 ? leaderboard[0] : undefined,
       leaderboard
     };
@@ -176,10 +183,10 @@ export class AwardsCalculator {
       .map((team, index) => ({ ...team, rank: index + 1 }));
 
     return {
-      id: awardsConfig.boomOrBustPlayer.id,
-      name: awardsConfig.boomOrBustPlayer.name,
-      description: awardsConfig.boomOrBustPlayer.description,
-      icon: awardsConfig.boomOrBustPlayer.icon,
+      id: this.awardConfigs.boomOrBustPlayer.id,
+      name: this.awardConfigs.boomOrBustPlayer.name,
+      description: this.awardConfigs.boomOrBustPlayer.description,
+      icon: this.awardConfigs.boomOrBustPlayer.icon,
       winner: leaderboard.length > 0 ? leaderboard[0] : undefined,
       leaderboard
     };
@@ -209,10 +216,10 @@ export class AwardsCalculator {
       .map((team, index) => ({ ...team, rank: index + 1 }));
 
     return {
-      id: awardsConfig.boomOrBustTeam.id,
-      name: awardsConfig.boomOrBustTeam.name,
-      description: awardsConfig.boomOrBustTeam.description,
-      icon: awardsConfig.boomOrBustTeam.icon,
+      id: this.awardConfigs.boomOrBustTeam.id,
+      name: this.awardConfigs.boomOrBustTeam.name,
+      description: this.awardConfigs.boomOrBustTeam.description,
+      icon: this.awardConfigs.boomOrBustTeam.icon,
       winner: leaderboard.length > 0 ? leaderboard[0] : undefined,
       leaderboard
     };
@@ -261,10 +268,10 @@ export class AwardsCalculator {
       .map((team, index) => ({ ...team, rank: index + 1 }));
 
     return {
-      id: awardsConfig.bestSingleGame.id,
-      name: awardsConfig.bestSingleGame.name,
-      description: awardsConfig.bestSingleGame.description,
-      icon: awardsConfig.bestSingleGame.icon,
+      id: this.awardConfigs.bestSingleGame.id,
+      name: this.awardConfigs.bestSingleGame.name,
+      description: this.awardConfigs.bestSingleGame.description,
+      icon: this.awardConfigs.bestSingleGame.icon,
       winner: leaderboard.length > 0 ? leaderboard[0] : undefined,
       leaderboard
     };
@@ -283,10 +290,10 @@ export class AwardsCalculator {
       .map((team, index) => ({ ...team, rank: index + 1 }));
 
     return {
-      id: awardsConfig.bestGameAboveProjections.id,
-      name: awardsConfig.bestGameAboveProjections.name,
-      description: awardsConfig.bestGameAboveProjections.description,
-      icon: awardsConfig.bestGameAboveProjections.icon,
+      id: this.awardConfigs.bestGameAboveProjections.id,
+      name: this.awardConfigs.bestGameAboveProjections.name,
+      description: this.awardConfigs.bestGameAboveProjections.description,
+      icon: this.awardConfigs.bestGameAboveProjections.icon,
       winner: leaderboard.length > 0 ? leaderboard[0] : undefined,
       leaderboard
     };
@@ -364,10 +371,10 @@ export class AwardsCalculator {
       .map((team, index) => ({ ...team, rank: index + 1 }));
 
     return {
-      id: awardsConfig.biggestBlowout.id,
-      name: awardsConfig.biggestBlowout.name,
-      description: awardsConfig.biggestBlowout.description,
-      icon: awardsConfig.biggestBlowout.icon,
+      id: this.awardConfigs.biggestBlowout.id,
+      name: this.awardConfigs.biggestBlowout.name,
+      description: this.awardConfigs.biggestBlowout.description,
+      icon: this.awardConfigs.biggestBlowout.icon,
       winner: leaderboard.length > 0 ? leaderboard[0] : undefined,
       leaderboard
     };
@@ -386,10 +393,10 @@ export class AwardsCalculator {
       .map((team, index) => ({ ...team, rank: index + 1 }));
 
     return {
-      id: awardsConfig.benchOutscoredStarters.id,
-      name: awardsConfig.benchOutscoredStarters.name,
-      description: awardsConfig.benchOutscoredStarters.description,
-      icon: awardsConfig.benchOutscoredStarters.icon,
+      id: this.awardConfigs.benchOutscoredStarters.id,
+      name: this.awardConfigs.benchOutscoredStarters.name,
+      description: this.awardConfigs.benchOutscoredStarters.description,
+      icon: this.awardConfigs.benchOutscoredStarters.icon,
       winner: leaderboard.length > 0 ? leaderboard[0] : undefined,
       leaderboard
     };
@@ -408,10 +415,10 @@ export class AwardsCalculator {
       .map((team, index) => ({ ...team, rank: index + 1 }));
 
     return {
-      id: awardsConfig.startersOutplayedBench.id,
-      name: awardsConfig.startersOutplayedBench.name,
-      description: awardsConfig.startersOutplayedBench.description,
-      icon: awardsConfig.startersOutplayedBench.icon,
+      id: this.awardConfigs.startersOutplayedBench.id,
+      name: this.awardConfigs.startersOutplayedBench.name,
+      description: this.awardConfigs.startersOutplayedBench.description,
+      icon: this.awardConfigs.startersOutplayedBench.icon,
       winner: leaderboard.length > 0 ? leaderboard[0] : undefined,
       leaderboard
     };
@@ -430,10 +437,10 @@ export class AwardsCalculator {
       .map((team, index) => ({ ...team, rank: index + 1 }));
 
     return {
-      id: awardsConfig.highestScoringLoss.id,
-      name: awardsConfig.highestScoringLoss.name,
-      description: awardsConfig.highestScoringLoss.description,
-      icon: awardsConfig.highestScoringLoss.icon,
+      id: this.awardConfigs.highestScoringLoss.id,
+      name: this.awardConfigs.highestScoringLoss.name,
+      description: this.awardConfigs.highestScoringLoss.description,
+      icon: this.awardConfigs.highestScoringLoss.icon,
       winner: leaderboard.length > 0 ? leaderboard[0] : undefined,
       leaderboard
     };
@@ -452,10 +459,10 @@ export class AwardsCalculator {
       .map((team, index) => ({ ...team, rank: index + 1 }));
 
     return {
-      id: awardsConfig.mostInjuries.id,
-      name: awardsConfig.mostInjuries.name,
-      description: awardsConfig.mostInjuries.description,
-      icon: awardsConfig.mostInjuries.icon,
+      id: this.awardConfigs.mostInjuries.id,
+      name: this.awardConfigs.mostInjuries.name,
+      description: this.awardConfigs.mostInjuries.description,
+      icon: this.awardConfigs.mostInjuries.icon,
       winner: leaderboard.length > 0 ? leaderboard[0] : undefined,
       leaderboard
     };

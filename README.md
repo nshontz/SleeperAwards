@@ -6,7 +6,7 @@ A Next.js application that tracks and displays hop-themed fantasy football award
 
 ## Features
 
-- 🏆 **13 Hop-Themed Awards** - From "The Cascade Shield" to "The Hop Bomb Award"
+- 🏆 **13 Themed Awards** - From "The Cascade Shield" to "The Hop Bomb Award"
 - 📊 **Real-time Leaderboards** - Live data from Sleeper API
 - 🎨 **Hop Industry Theming** - Custom colors and terminology
 - 📱 **Responsive Design** - Works on all devices
@@ -14,19 +14,19 @@ A Next.js application that tracks and displays hop-themed fantasy football award
 
 ## Award Categories
 
-- **The Cascade Shield** - Fewest points against
-- **The Bitter End Award** - Most points against
-- **The Noble Hop Award** - Most predictable (closest to projections)
-- **The Pilsner Prize** - Most consistent (lowest standard deviation)
-- **The Citra Wildcard** - Most boom or bust player
-- **The IPA Rollercoaster** - Most boom or bust team
-- **The Alpha Acid Champion** - Best single game score
-- **The Mosaic Masterpiece** - Best game above projections
-- **The Hop Bomb Award** - Biggest blowout victory
-- **The Dry Hop Disaster** - Bench outscored starters
-- **The Perfect Brew** - Starters beat bench by most
-- **The Centennial Curse** - Highest scoring loss
-- **The Wilted Bine Award** - Most injuries in a week
+-  Fewest points against
+-  Most points against
+-  Most predictable (closest to projections)
+-  Most consistent (lowest standard deviation)
+-  Most boom or bust player
+-  Most boom or bust team
+-  Best single game score
+-  Best game above projections
+-  Biggest blowout victory
+-  Bench outscored starters
+-  Starters beat bench by most
+-  Highest scoring loss
+-  Most injuries in a week
 
 ## Getting Started
 

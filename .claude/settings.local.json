@@ -13,7 +13,9 @@
       "Bash(npx prisma migrate dev:*)",
       "Bash(npx prisma migrate reset:*)",
       "Bash(npx tsc:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(npx prisma:*)",
+      "Bash(npx tsx:*)"
     ],
     "deny": []
   }

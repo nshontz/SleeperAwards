@@ -87,18 +87,27 @@ export default function TeamsPage() {
           setLoading(false);
           return;
         }
-        const leagueId = user.teams[0].league.sleeperLeagueId;
-        const sleeperApi = new SleeperAPI(leagueId);
+        const sleeperLeagueId = user.teams[0].league.sleeperLeagueId;
+        const dbLeagueId = user.teams[0].leagueId;
+        const sleeperApi = new SleeperAPI(sleeperLeagueId);
 
         // Fetch league data
-        const league = await sleeperApi.getLeague();
-        const rosters = await sleeperApi.getRosters();
-        const users = await sleeperApi.getUsers();
-        const matchups = await sleeperApi.getAllMatchups();
+        const [league, rosters, users, matchups] = await Promise.all([
+          sleeperApi.getLeague(),
+          sleeperApi.getRosters(),
+          sleeperApi.getUsers(),
+          sleeperApi.getAllMatchups()
+        ]);
 
+        // Fetch award configurations from API
+        const awardConfigsResponse = await fetch(`/api/leagues/${dbLeagueId}/award-configs`);
+        if (!awardConfigsResponse.ok) {
+          throw new Error('Failed to fetch award configurations');
+        }
+        const { awardConfigs } = await awardConfigsResponse.json();
 
         // Calculate awards for team rankings
-        const awardsCalculator = new AwardsCalculator(rosters, users, matchups);
+        const awardsCalculator = new AwardsCalculator(rosters, users, matchups, awardConfigs);
         const calculatedAwards = awardsCalculator.calculateAllAwards();
 
         // Process teams with stats

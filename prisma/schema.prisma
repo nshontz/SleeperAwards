@@ -51,5 +51,38 @@ model League {
   updatedAt       DateTime @updatedAt
   
   // Relationships
-  teams           Team[]   // League contains teams
+  teams           Team[]         // League contains teams
+  awardCustomizations AwardCustomization[] // League can customize award names
+}
+
+// Default award types that can be customized per league
+model AwardType {
+  id          String   @id // matches JSON keys like "fewestPointsAgainst"
+  name        String   // Default name like "The Easy Day"
+  description String   // Description of what the award is for
+  icon        String   // Emoji icon
+  category    String?  // Optional category for grouping
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationships
+  customizations AwardCustomization[] // This award type can be customized by leagues
+}
+
+// League-specific award customizations
+model AwardCustomization {
+  id           String   @id @default(cuid())
+  leagueId     String   // Which league this customization is for
+  awardTypeId  String   // Which award type is being customized
+  customName   String   // Custom name for this award in this league
+  customIcon   String?  // Optional custom icon
+  isActive     Boolean  @default(true) // Whether this award is enabled for the league
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Relationships
+  league       League    @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  awardType    AwardType @relation(fields: [awardTypeId], references: [id], onDelete: Cascade)
+  
+  @@unique([leagueId, awardTypeId]) // One customization per award type per league
 }

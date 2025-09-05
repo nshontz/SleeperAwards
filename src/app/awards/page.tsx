@@ -9,8 +9,6 @@ import {AwardCard} from '@/components/AwardCard';
 import {AwardModal} from '@/components/AwardModal';
 import {Award} from '@/types/sleeper';
 
-const CACHE_DURATION = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
-const CACHE_KEY = 'sleeper_awards_cache';
 
 export default function AwardsPage() {
   const router = useRouter();
@@ -80,28 +78,15 @@ export default function AwardsPage() {
     try {
       setLoading(true);
 
-      // Check cache first
-      const cached = localStorage.getItem(CACHE_KEY);
-      if (cached) {
-        const {data, timestamp} = JSON.parse(cached);
-        const now = Date.now();
-
-        if (now - timestamp < CACHE_DURATION) {
-          setAwards(data.awards);
-          setLeagueName(data.leagueName);
-          setLoading(false);
-          return;
-        }
-      }
-      
       // Use the first team's league
       if (!user?.teams?.[0]?.league?.sleeperLeagueId) {
         setError('No league found for user teams');
         setLoading(false);
         return;
       }
-      const leagueId = user.teams[0].league.sleeperLeagueId;
-      const api = new SleeperAPI(leagueId);
+      const sleeperLeagueId = user.teams[0].league.sleeperLeagueId;
+      const dbLeagueId = user.teams[0].leagueId;
+      const api = new SleeperAPI(sleeperLeagueId);
 
       const [league, rosters, users, allMatchups] = await Promise.all([
         api.getLeague(),
@@ -110,22 +95,19 @@ export default function AwardsPage() {
         api.getAllMatchups()
       ]);
 
+      // Fetch award configurations from API
+      const awardConfigsResponse = await fetch(`/api/leagues/${dbLeagueId}/award-configs`);
+      if (!awardConfigsResponse.ok) {
+        throw new Error('Failed to fetch award configurations');
+      }
+      const { awardConfigs } = await awardConfigsResponse.json();
+
       setLeagueName(league.name);
 
-      const calculator = new AwardsCalculator(rosters, users, allMatchups);
+      const calculator = new AwardsCalculator(rosters, users, allMatchups, awardConfigs);
       const calculatedAwards = calculator.calculateAllAwards();
 
       setAwards(calculatedAwards);
-
-      // Cache the data
-      const cacheData = {
-        data: {
-          awards: calculatedAwards,
-          leagueName: league.name
-        },
-        timestamp: Date.now()
-      };
-      localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load awards');
@@ -240,9 +222,6 @@ export default function AwardsPage() {
       {/* Footer */}
       <footer className="bg-gray-900 dark:bg-black text-white py-8 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-gray-400 dark:text-gray-500">
-            Powered by Sleeper API • Built for Yakima Chief Hops Fantasy League
-          </p>
           <p className="text-sm text-gray-500 dark:text-gray-600 mt-2">
             May your hops be fresh and your lineups be optimal 🍺
           </p>

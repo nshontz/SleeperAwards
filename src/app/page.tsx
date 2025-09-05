@@ -34,6 +34,38 @@ export default function Home() {
     );
   }
 
+  // If user is not authenticated, show login screen
+  if (!user && !loading) {
+    return (
+      <PageContainer className="flex items-center justify-center">
+        <ResponsiveContainer maxWidth="sm">
+          <Card className="w-full backdrop-blur-md bg-card/95 shadow-xl sm:shadow-2xl">
+            <CardHeader className="text-center p-4 sm:p-6">
+              <CardTitle className="text-xl sm:text-2xl lg:text-3xl font-bold">🍺 Welcome to BineTime</CardTitle>
+              <CardDescription className="text-sm sm:text-base lg:text-lg">
+                Sign in to access your fantasy football teams and track your performance.
+              </CardDescription>
+            </CardHeader>
+            
+            <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
+              <Button asChild className="w-full bg-hop-gold hover:bg-hop-gold/90 text-hop-brown font-semibold text-sm sm:text-base">
+                <Link href="/login">
+                  Sign In to Get Started
+                </Link>
+              </Button>
+
+              <div className="text-center">
+                <p className="text-muted-foreground text-xs sm:text-sm">
+                  Secure authentication powered by Clerk
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </ResponsiveContainer>
+      </PageContainer>
+    );
+  }
+
   if (!hasTeams) {
     return (
       <PageContainer>

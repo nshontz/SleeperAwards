@@ -1,13 +1,13 @@
 {
   "fewestPointsAgainst": {
     "id": "fewest-points-against",
-    "name": "The Cascade Shield",
+    "name": "The Easy Day",
     "description": "Endured fewest points against",
     "icon": "🛡️"
   },
   "mostPointsAgainst": {
-    "id": "most-points-against", 
-    "name": "The Bitter End Award",
+    "id": "most-points-against",
+    "name": "That Bitter Taste",
     "description": "Endured most points against",
     "icon": "😤"
   },
@@ -25,7 +25,7 @@
   },
   "boomOrBustPlayer": {
     "id": "boom-or-bust-player",
-    "name": "The Citra Wildcard",
+    "name": "The Bull Shoot",
     "description": "Most boom or bust player",
     "icon": "🎲"
   },
@@ -37,7 +37,7 @@
   },
   "bestSingleGame": {
     "id": "best-single-game",
-    "name": "The Alpha Acid Champion",
+    "name": "The Golden Cone",
     "description": "Best single game score",
     "icon": "🏆"
   },

@@ -2,15 +2,18 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Skeleton } from '@/components/ui/skeleton';
 import { PageContainer, ResponsiveContainer } from '@/components/ui/responsive-container';
 import { SkipLinks, LoadingAnnouncement, AnnouncementRegion } from '@/components/ui/accessibility';
 import { SleeperTeam, SleeperLeagueSimple } from '@/types/sleeper';
+import { useUser } from '@/hooks/useUser';
 
 interface LeagueData {
   league: SleeperLeagueSimple;
@@ -25,6 +28,7 @@ export default function JoinLeaguePage() {
   const [joining, setJoining] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  const { user, loading: userLoading } = useUser();
 
   const fetchLeagueTeams = async () => {
     if (!leagueId.trim()) {
@@ -91,6 +95,70 @@ export default function JoinLeaguePage() {
       setJoining(false);
     }
   };
+
+  // Show loading state while checking authentication
+  if (userLoading) {
+    return (
+      <>
+        <SkipLinks />
+        <PageContainer>
+          <ResponsiveContainer maxWidth="4xl" className="py-6 sm:py-8">
+            <main id="main-content">
+              <Card className="backdrop-blur-md bg-card/95 shadow-xl sm:shadow-2xl">
+                <CardHeader className="text-center p-4 sm:p-6">
+                  <Skeleton className="h-8 sm:h-12 w-3/4 mx-auto mb-2 sm:mb-4" />
+                  <Skeleton className="h-4 sm:h-6 w-1/2 mx-auto" />
+                </CardHeader>
+                <CardContent className="p-4 sm:p-6">
+                  <div className="space-y-4">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-32 w-full" />
+                  </div>
+                </CardContent>
+              </Card>
+            </main>
+          </ResponsiveContainer>
+        </PageContainer>
+      </>
+    );
+  }
+
+  // Redirect to login if not authenticated
+  if (!user && !userLoading) {
+    return (
+      <>
+        <SkipLinks />
+        <PageContainer className="flex items-center justify-center">
+          <ResponsiveContainer maxWidth="sm">
+            <main id="main-content">
+              <Card className="w-full backdrop-blur-md bg-card/95 shadow-xl sm:shadow-2xl">
+                <CardHeader className="text-center p-4 sm:p-6">
+                  <CardTitle className="text-xl sm:text-2xl lg:text-3xl font-bold">🍺 Authentication Required</CardTitle>
+                  <CardDescription className="text-sm sm:text-base lg:text-lg">
+                    You need to sign in to join a league.
+                  </CardDescription>
+                </CardHeader>
+                
+                <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
+                  <Button asChild className="w-full bg-hop-gold hover:bg-hop-gold/90 text-hop-brown font-semibold text-sm sm:text-base">
+                    <Link href="/login">
+                      Sign In to Continue
+                    </Link>
+                  </Button>
+
+                  <div className="text-center">
+                    <p className="text-muted-foreground text-xs sm:text-sm">
+                      Already have an account? Sign in to join your league.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </main>
+          </ResponsiveContainer>
+        </PageContainer>
+      </>
+    );
+  }
 
   return (
     <>
